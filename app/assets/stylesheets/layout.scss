@@ -1,0 +1,186 @@
+html {
+  position: relative;
+  @include scaled-background();
+}
+
+body {
+  margin: 0px;
+}
+
+header {
+  box-shadow: 0px 1px 1px rgba(#020e11,0.7);
+  @include scaled-background('-blurred');
+
+  nav {
+    display: flex;
+    margin: auto;
+    max-width: $max-width;
+
+    a {
+      display: flex;
+      line-height: 50px;
+      color: rgba($white, 0.75);
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+
+      // Humani.se Logo
+      &:first-child {
+        flex: 1;
+        padding: 0 0.65em;
+        h1 {
+          font-family: $logo-font;
+          color: rgba($white, 0.9);
+          text-transform: uppercase;
+          transition: color 0.2s;
+        }
+        img {
+          display: none;
+        }
+        span {
+          color: $white;
+        }
+      }
+
+      // Navigation Links
+      &:last-child {
+        span {
+          color: rgba($white, 0.7);
+          font-weight: bold;
+          transition: all 0.2s;
+    
+          &:hover {
+            color: $white;
+            box-shadow: inset 0px -2px 0px 0px $blue;
+          }
+        }
+      }
+    }
+  }
+}
+
+/***********************************************/
+/* Main Page                                   */
+/***********************************************/
+
+main {
+  margin: auto;
+  padding: 0px 10px;
+  max-width: $max-width;
+  overflow: auto;
+
+  h1 {
+    margin: 1.2em 0em;
+    font-size: 55px;
+    color: $white;
+    text-align: center;
+    @media(max-width: 767px) {
+      font-size: 35px;
+    }
+  }
+
+  article {
+    position: relative;
+    margin-bottom: 1.5em;
+    padding: 1.25em;
+    border-radius: $article-border-radius;
+    background-color: #242B37;
+    box-shadow:
+      inset 0px 1px 0px 0px rgba(236, 244, 249, 0.15),
+      0px 1px 1px 0px rgba(2, 14, 17, 0.7),
+      inset 0px -50px 100px -40px #181c22;
+    font-size: 18px;
+    color: $off-white;
+    @include scaled-background('-blurred');
+
+    &.comments {
+      background: #242B37;
+    }
+
+    p {
+      line-height: 1.68em;
+      letter-spacing: 0.03em;
+      word-spacing: 0.075em;
+      text-indent: 10px;
+
+      a {
+        font-weight: bold;
+      }
+    }
+
+    a {
+      color: $blue;
+      font-weight: 400;
+      text-decoration: none;
+    }
+  }
+}
+
+/***********************************************/
+/* Desktop ( > 768px )                         */
+/***********************************************/
+
+@media(min-width: 768px) {
+  main {
+    article {
+      box-shadow:
+        inset 0px 1px 0px 0px rgba(236, 244, 249, 0.15),
+        0px 1px 1px 0px rgba(2, 14, 17, 0.7);
+    }
+  }
+}
+
+footer {
+  margin-bottom: 1.5em;
+  #social-links {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    & > a {
+      position: relative;
+      font-size: 20vw;
+
+      &:before {
+        position: absolute;
+        top: 0px; right: 0px; bottom: 0px; left: 0px;
+      }
+      &[class*="github"] { color: shade($github, 10%); }
+      &[class*="resume"] { color: shade($resume, 10%); }
+      &[class*="linkedin"] { color: shade($linkedin, 50%); }
+      i { color: rgba($white, 0.85); }
+    }
+  }
+}
+
+/***********************************************/
+/* Desktop ( > 768px )                         */
+/***********************************************/
+
+@media(min-width: 768px) {
+  footer {
+    #social-links a {
+      top: 0px;
+      border-radius: $article-border-radius;
+      box-shadow:
+        1px 1px 15px 1px rgba(14,58,81,0.2),
+        inset 0px -1px 0px 0px rgba(255,255,255,0.1);
+      font-size: 165px;
+      color: rgba($white, 0.3) !important;
+      overflow: hidden;
+      transition: all 0.4s;
+
+      i {
+        text-shadow: none;
+        color: rgba(38, 65, 92, 0.25);
+        transition: all 0.4s;
+      }
+
+      &:hover {
+        top: -10px;
+        &[class*="github"] { color: rgba($github, 0.8) !important; }
+        &[class*="resume"] { color: rgba($resume, 0.8) !important; }
+        &[class*="linkedin"] { color: rgba($linkedin, 0.8) !important; }
+        i { color: rgba($white, 1); }
+      }
+    }
+  }
+}

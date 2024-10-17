@@ -1,0 +1,29 @@
+
+// Colors
+$white: #ffffff;
+$blue: #0088cc;
+$black: #000000;
+$dark-grey: #1F2122;
+$off-white: #ecf4f9;
+
+// Social
+$linkedin: #0976b4;
+$github: #333333;
+$resume: #16a085;
+
+// Fonts
+$logo-font: 'Fjalla One', sans-serif;
+$header-font: 'Seans Other Hand', 'sans-serif';
+$body-font: 'Open Sans', sans-serif;
+
+// Max page width
+$max-width: 1224px;
+
+// Border radii
+$article-border-radius: 8px;
+
+@import 'helpers';
+@import 'fonts';
+@import 'icons';
+@import 'typography';
+@import 'layout';

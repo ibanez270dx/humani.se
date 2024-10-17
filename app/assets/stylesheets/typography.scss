@@ -1,0 +1,56 @@
+
+body {
+  font-feature-settings: "pnum", "kern" false;
+  font-family: $body-font;
+  color: $white;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-font-smoothing: antialiased !important;
+  text-rendering: optimizelegibility !important;
+  letter-spacing: .03em;
+}
+
+///////////////////////////////////////
+// Headers
+///////////////////////////////////////
+
+h1, h2, h3 {
+  margin: 0;
+  font-family: $header-font;
+  font-weight: 400;
+  color: $blue;
+}
+
+h1, h2 {
+  font-size: 32px;
+}
+
+h3 {
+  font-size: 24px;
+}
+
+///////////////////////////////////////
+// Links
+///////////////////////////////////////
+
+a {
+  color: $blue;
+  text-decoration: none;
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+///////////////////////////////////////
+// Typographic Containers
+///////////////////////////////////////
+
+p {
+  margin-top: 0;
+}
+
+small {
+  display: block;
+  font-size: 9px;
+  text-align: center;
+}

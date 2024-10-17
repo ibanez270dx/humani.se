@@ -1,0 +1,13 @@
+
+@mixin scaled-background($tag: '') {
+  background-color: #101316;
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: 100%;
+
+  @media(min-width: 2561px) { background-image: url("background/3200#{$tag}.jpg"); }
+  @media(max-width: 2560px) { background-image: url("background/2560#{$tag}.jpg"); }
+  @media(max-width: 1440px) { background-image: url("background/1440#{$tag}.jpg"); }
+  @media(max-width: 800px) { background-image: url("background/crop-800#{$tag}.jpg"); }
+  @media(max-width: 500px) { background-image: url("background/crop-500#{$tag}.jpg"); }
+}

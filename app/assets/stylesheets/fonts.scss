@@ -1,0 +1,25 @@
+
+@mixin custom-font($family, $filename, $weight, $style: "normal") {
+  font-family: $family;
+  font-weight: unquote($weight);
+  font-style: unquote($style);
+  src: url("#{$filename}.eot");
+  src: url("#{$filename}.eot?#iefix") format('embedded-opentype'),
+       url("#{$filename}.woff") format('woff'),
+       url("#{$filename}.ttf") format('truetype'),
+       url("#{$filename}.svg") format('svg');
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Import fonts
+////////////////////////////////////////////////////////////////////////////////
+
+@font-face { @include custom-font('Open Sans', 'OpenSans-Light', 'regular'); }
+@font-face { @include custom-font('Open Sans', 'OpenSansLight-Italic', 'regular', 'italic'); }
+@font-face { @include custom-font('Open Sans', 'OpenSans-Semibold', 'bold'); }
+@font-face { @include custom-font('Open Sans', 'OpenSans-SemiboldItalic', 'bold', 'italic'); }
+
+@font-face { @include custom-font('Seans Other Hand', 'SeansOtherHand', 'regular'); }
+@font-face { @include custom-font('Fjalla One', 'fjallaone-regular', 'regular'); }
+@font-face { @include custom-font('Inconsolata', 'inconsolata-regular', 'regular'); }
+@font-face { @include custom-font('Inconsolata', 'inconsolata-bold', 'bold'); }
