@@ -41,8 +41,9 @@ header {
       }
 
       // Navigation Links
-      &:last-child {
+      &:not(:first-child) {
         span {
+          padding: 0 1rem;
           color: rgba($white, 0.7);
           font-weight: bold;
           transition: all 0.2s;
