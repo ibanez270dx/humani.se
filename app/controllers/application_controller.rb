@@ -11,7 +11,7 @@ class ApplicationController < ActionController::Base
       ruby_version: `ruby -v`.squish,
       rails_version: Rails.version,
       release_version: Humanise.release_version,
-      released_created_at: Humanise.released_created_at,
+      release_created_at: Humanise.release_created_at,
       build_commit: Humanise.build_commit,
       build_description: Humanise.build_description,
       deployed_at: File.mtime(Rails.root)
