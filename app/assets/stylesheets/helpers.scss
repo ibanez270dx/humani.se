@@ -11,3 +11,15 @@
   @media(max-width: 800px) { background-image: url("background/crop-800#{$tag}.jpg"); }
   @media(max-width: 500px) { background-image: url("background/crop-500#{$tag}.jpg"); }
 }
+
+@function shade(
+  $color,
+  $percent
+) {
+  @if not _is-color($color) {
+    @error "`#{$color}` is not a valid color for the `$color` argument in " +
+      "the `shade` mixin.";
+  } @else {
+    @return mix(#000, $color, $percent);
+  }
+}
