@@ -18,6 +18,7 @@ header {
 
     a {
       display: flex;
+      align-items: center;
       line-height: 50px;
       color: rgba($white, 0.75);
       -webkit-tap-highlight-color: rgba(0,0,0,0);
@@ -47,10 +48,15 @@ header {
           color: rgba($white, 0.7);
           font-weight: bold;
           transition: all 0.2s;
-    
-          &:hover {
+          line-height: normal;
+          text-align: center;
+        }
+
+        &:hover {
+          box-shadow: inset 0px -2px 0px 0px $blue;
+
+          span {
             color: $white;
-            box-shadow: inset 0px -2px 0px 0px $blue;
           }
         }
       }
