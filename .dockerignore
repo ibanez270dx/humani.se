@@ -46,3 +46,9 @@
 # Ignore Docker-related files
 /.dockerignore
 /Dockerfile*
+
+# Exclude development tooling and design references.
+/.ruby-lsp
+/.vscode
+/design-explorations
+/docs

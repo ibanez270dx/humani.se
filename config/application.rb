@@ -1,6 +1,9 @@
 require_relative "boot"
 
-require "rails/all"
+require "rails"
+require "action_controller/railtie"
+require "action_view/railtie"
+require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -23,5 +26,8 @@ module HumaniSe
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # When the application server started
+    config.started_at = Time.now.utc.iso8601
   end
 end

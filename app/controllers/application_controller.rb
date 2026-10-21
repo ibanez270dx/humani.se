@@ -4,17 +4,11 @@ class ApplicationController < ActionController::Base
 
   def status
     render json: {
-      app_id: Humanise.app_id,
-      app_name: Humanise.app_name,
-      hostname: `hostname`.squish,
+      version: Humanise.release_version,
+      sha: Humanise.build_commit,
       environment: Rails.env,
-      ruby_version: `ruby -v`.squish,
-      rails_version: Rails.version,
-      release_version: Humanise.release_version,
-      release_created_at: Humanise.release_created_at,
-      build_commit: Humanise.build_commit,
-      build_description: Humanise.build_description,
-      deployed_at: File.mtime(Rails.root)
+      deployed_at: Humanise.release_created_at,
+      started_at: Rails.application.config.started_at
     }
   end
 

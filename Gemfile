@@ -4,11 +4,7 @@ ruby "4.0.7"
 gem "rails", "~> 8.1"               # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "sprockets-rails"                 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "dartsass-rails"                  # Integrate Dart Sass with the asset pipeline in Rails
-gem "sqlite3", ">= 1.4"               # Use sqlite3 as the database for Active Record
 gem "puma", ">= 5.0"                  # Use the Puma web server [https://github.com/puma/puma]
-gem "importmap-rails"                 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
-gem "turbo-rails"                     # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
-gem "stimulus-rails"                  # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
 gem "bootsnap", require: false        # Reduces boot times through caching; required in config/boot.rb
 
 group :development, :test do
