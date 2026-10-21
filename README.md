@@ -1,107 +1,158 @@
-# humani.se
+# Humani.se
 
-Jeff Miller's personal site. A server-rendered Rails page with responsive
+My personal site: a server-rendered Rails page with responsive
 background imagery, a downloadable resume, and links to GitHub, LinkedIn,
-and Calendly.
+and Calendly. The canonical URL is <https://www.humani.se/>.
 
 ## Development
 
-- Ruby 4.0.7 (see `.ruby-version`)
-- Bundler 4.0.23 (see `Gemfile.lock`)
+Use Ruby 4.0.7 and Bundler 4.0.23, as specified by `.ruby-version`, `Gemfile`,
+and `Gemfile.lock`. The app uses Rails 8.1 with 8.1 framework defaults.
 
-Run `bin/setup`, then `bin/dev`. The site is served at
-<http://localhost:3000>; the second process watches Dart Sass sources.
+```sh
+bin/setup
+bin/dev
+```
+
+`bin/setup` installs gem dependencies, clears logs and temporary files, and
+requests an application server restart. `bin/dev` uses Foreman to start Rails
+at <http://localhost:3000> and watch the Dart Sass sources. It installs
+Foreman if missing.
+
 No database, Redis, JavaScript toolchain, or background worker is required.
-
-The application loads Action Controller, Action View, and Rails' test support.
-Unused database, mail, storage, job, and WebSocket frameworks are not enabled.
-The `rails` gem still includes those components as transitive dependencies.
+The app loads controller, view, and test railties. The Rails umbrella gem
+still installs other framework components, but their railties are disabled.
 
 ## Checks
 
+Run the local check sequence:
+
 ```sh
-bin/rails dartsass:build
-bin/rails test
-bin/rails zeitwerk:check
-bin/rubocop
-bin/brakeman --no-pager
-bundle exec bundle-audit check --update
-RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile
+bin/ci
 ```
 
-CI runs source and dependency security scanning, lint, the production asset
-build, request tests, eager-loading checks, and production smoke tests.
-Request tests cover the page, linked assets, sharing metadata, manifest,
-health check, deployment status, and removed framework routes.
-
-Run the production smoke checks after precompiling assets:
+The executable script works from any directory and stops on the first
+failure. It runs these commands in order:
 
 ```sh
+bin/brakeman --no-pager
+bundle exec bundle-audit check --update
+bin/rubocop
+bin/rails zeitwerk:check
+bin/rails dartsass:build
+bin/rails test
+```
+
+The security checks may need network access. Request tests cover the home
+page, responsive assets, sharing metadata, manifest, health, public status,
+and removed framework routes.
+
+Production checks are separate from `bin/ci`. From the repository root, run:
+
+```sh
+RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile
 RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bin/rails runner test/production_smoke.rb
 ```
 
-These check allowed and rejected hosts, HTTPS redirects, Heroku's forwarded
-HTTPS headers, CSP, public status, and every responsive image asset.
+The smoke tests check allowed/rejected hosts, HTTPS redirects, forwarded
+HTTPS requests, CSP, public status, stable startup timestamps, and retrieval
+of compiled/public assets. `test/production_smoke.rb` runs through Rails
+runner; `bin/rails test` does not include it.
+
+[GitHub Actions](.github/workflows/ci.yml) runs source and dependency security
+scans, lint, eager loading, request tests, production asset compilation, and
+production smoke tests. It runs those checks in separate steps/jobs rather
+than invoking `bin/ci`.
+
+## Application structure
+
+| Location | Purpose |
+| --- | --- |
+| `app/views/application/index.html.erb` | Home page content and profile links |
+| `app/views/layouts/application.html.erb` | Shared markup, responsive background, canonical and sharing metadata |
+| `app/assets/stylesheets/` | Sass source; `application.scss` imports typography and layout |
+| `app/assets/config/manifest.js` | Sprockets publishing directives for images and compiled CSS |
+| `app/controllers/application_controller.rb` | Home and deployment-status actions |
+| `app/views/pwa/manifest.json.erb` | Web app metadata and icon references |
+| `public/` | Favicons, resume PDF, social preview, and static error pages |
+| `design-sources/` | Original photo and social-card artwork |
+| `design-explorations/` | Design references |
+
+The page uses system fonts and no runtime JavaScript. Sprockets publishes
+compiled CSS and WebP backgrounds at widths 640, 960, 1440, 2560, and 3200.
+Generated CSS in `app/assets/builds/` and fingerprinted assets in
+`public/assets/` are ignored by Git.
 
 ## Production: Heroku
 
-Deploy using the existing Git remote:
+The repository is configured for Git/buildpack deployment to Heroku:
 
 ```sh
 git push heroku main
 ```
 
-Heroku's Ruby buildpack installs gems and precompiles assets. The `Procfile`
-starts Puma on the port Heroku provides.
+The Ruby buildpack installs gems and precompiles assets. The root `Procfile`
+starts Puma using `config/puma.rb`; Puma reads Heroku's `PORT`. There is no
+Dockerfile or container deployment configuration.
 
-The canonical URL is `https://www.humani.se/`, matching the existing live
-redirect from the bare domain. Production accepts `humani.se`,
-`www.humani.se`, and `humanise.herokuapp.com`. For other exact app or preview
-hostnames, set `RAILS_ALLOWED_HOSTS` to a comma-separated list. Wildcards are
-not needed. The Heroku CLI credentials were unavailable during the review,
-so the remote stack and domain list have not been independently verified.
+Production accepts `humani.se`, `www.humani.se`, and
+`humanise.herokuapp.com`. Add other exact app/preview hostnames through the
+comma-separated `RAILS_ALLOWED_HOSTS` environment variable. The configured
+allowlist describes expected hosts; it does not verify the live app's domain
+or stack configuration. Canonical and sharing URLs use the fixed
+`https://www.humani.se/` origin.
 
-Keep Heroku's forwarded protocol headers intact. Rails forces HTTPS and
-recognizes requests already secured by Heroku's router. The production CSP
-permits same-origin images/styles/manifest and disables scripts, embedded
-objects, forms, and framing. Development retains its exception console.
-`/status` remains public by design; `started_at` records application boot
-configuration time and is shared by workers if the server preloads the app.
+Rails forces HTTPS and recognizes Heroku's forwarded HTTPS headers. The
+production CSP allows same-origin images, styles, and manifest; it disables
+scripts, network connections from page scripts, web fonts, forms, embedded
+objects, and framing. Development retains its exception console.
 
-The `.slugignore` file excludes design sources, documentation, tests, and
-authoring tooling from Heroku slugs. Compiled assets and public files remain.
+Provide the runtime secret key base through `SECRET_KEY_BASE` or encrypted
+credentials with their `RAILS_MASTER_KEY`. `SECRET_KEY_BASE_DUMMY=1` is for
+local asset compilation and smoke checks, not a live server.
 
-Set a real `SECRET_KEY_BASE` at runtime, or provide `RAILS_MASTER_KEY` for
-encrypted credentials.
-`SECRET_KEY_BASE_DUMMY` is only for the asset build.
+The `.slugignore` file excludes design sources/references, the `docs/`
+directory, tests, image-authoring scripts, and editor tooling from Heroku's
+deployed bundle. It does not remove those files from Git. Runtime assets
+and public files remain included.
 
-Routes: `/` (home), `/manifest.json` (web app metadata), `/up` (health),
-and `/status` (deployment metadata). Public files include favicons and
-`/jeff-miller-resume.pdf`.
+## Routes and status
 
-## Repository notes
+| Route | Purpose |
+| --- | --- |
+| `/` | Home page |
+| `/manifest.json` | Web app metadata; no service worker is registered |
+| `/up` | Rails health check |
+| `/status` | Public deployment/startup metadata |
 
-The page lives in `app/views/application/index.html.erb`, with shared markup
-in `app/views/layouts/application.html.erb`. Sass starts at
-`app/assets/stylesheets/application.scss` and uses system fonts.
-Sprockets publishes the compiled CSS and five responsive WebP backgrounds.
+The status response contains `version`, `sha`, `environment`, `deployed_at`,
+and `started_at`. Release version, commit SHA, and deployment time come from
+`HEROKU_RELEASE_VERSION`, `HEROKU_BUILD_COMMIT`, and
+`HEROKU_RELEASE_CREATED_AT`; they may be null when those variables are not
+provided. `started_at` is captured once when application configuration loads,
+so preloaded workers can share the timestamp. It is separate from release
+deployment time. Tests use placeholder release metadata.
 
-Design references remain in `design-explorations/` and are excluded from
-Heroku slugs. See [the repository review](docs/repository-review.md) for
-cleanup evidence and prioritized follow-up work.
+The resume is available at `/jeff-miller-resume.pdf`. Open Graph and Twitter
+metadata reference the 1200×630 image at `/social-preview.jpg`.
 
-## Image sources and sharing preview
+## Image authoring
 
-The original photo and preview artwork live in `design-sources/`.
-`public/social-preview.jpg` is the 1200×630 social card. The layout includes
-Open Graph and Twitter metadata with absolute canonical URLs.
-
-To regenerate the images locally (optional authoring dependencies only):
+The photo master is `design-sources/night-sky.jpg`; the social-card overlay
+is `design-sources/social-preview.svg`. To regenerate the checked-in images
+from the repository root:
 
 ```sh
 npm install --prefix tmp/image-tools sharp --no-audit --no-fund
 NODE_PATH="$PWD/tmp/image-tools/node_modules" node script/build-images.cjs
 ```
 
-Node and sharp are not required by Rails, CI, or Heroku. The checked-in WebP
-images preserve the original composition and use quality 85 encoding.
+This writes the five WebP backgrounds at quality 85 and the JPEG social
+preview. Node and sharp are optional authoring dependencies; they are not
+required to run Rails, CI, or the Heroku build. Commit the generated images
+along with source changes.
+
+See [AGENTS.md](AGENTS.md) for agent guidance and the
+[repository review](docs/repository-review.md) for cleanup evidence and
+follow-up decisions. The review records the work and checks performed at
+the time; current code, scripts, and workflow files define present behavior.
