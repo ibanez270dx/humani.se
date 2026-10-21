@@ -12,6 +12,9 @@ class SiteTest < ActionDispatch::IntegrationTest
     assert_select "a[href='https://calendly.com/jeff-dev/meeting']"
     assert_select "link[rel='manifest'][href='/manifest.json']"
     assert_select "script", count: 0
+    assert_select ".night-sky[aria-hidden='true']" do
+      assert_select "svg.night-sky-twinkles[aria-hidden='true'][focusable='false'][preserveAspectRatio='xMidYMid slice']"
+    end
 
     assert_select "link[rel='stylesheet']" do |links|
       links.each{ |link| assert_public_asset link["href"] }

@@ -1,0 +1,27 @@
+<%# Coordinates match stars in background/1440.webp; slice follows the image's centered cover crop. %>
+<svg class="night-sky-twinkles" viewBox="0 0 1440 961" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="star-glow">
+      <stop offset="0" stop-color="#edf6ff" />
+      <stop offset="0.25" stop-color="#d6eaff" stop-opacity="0.6" />
+      <stop offset="1" stop-color="#d6eaff" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="star-shade">
+      <stop offset="0" stop-color="#071523" stop-opacity="0.95" />
+      <stop offset="0.3" stop-color="#071523" stop-opacity="0.7" />
+      <stop offset="1" stop-color="#071523" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <% [[611, 43], [1316, 240], [1280, 60], [561, 273],
+      [812, 196], [1168, 163], [738, 95], [984, 71],
+      [1241, 366], [579, 447], [687, 325], [1115, 47]].each do |x, y| %>
+    <g class="night-sky-star" transform="translate(<%= x %> <%= y %>)">
+      <%# Dim the photographed star so the light can visibly brighten and fade. %>
+      <circle r="3.5" fill="url(#star-shade)" />
+      <g class="star-light">
+        <circle r="6" fill="url(#star-glow)" />
+        <circle r="0.9" fill="#edf6ff" />
+      </g>
+    </g>
+  <% end %>
+</svg>
