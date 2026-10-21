@@ -61,3 +61,9 @@ jobs:
 
       - name: Check eager loading
         run: bin/rails zeitwerk:check
+
+      - name: Check production hosts, HTTPS, CSP, and public assets
+        env:
+          RAILS_ENV: production
+          SECRET_KEY_BASE_DUMMY: 1
+        run: bin/rails runner test/production_smoke.rb
