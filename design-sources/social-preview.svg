@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="shade" x2="1" y2="0">
+      <stop stop-color="#030e1b" stop-opacity=".88"/>
+      <stop offset="1" stop-color="#030e1b" stop-opacity=".35"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#shade)"/>
+  <g font-family="Helvetica, Arial, sans-serif" font-weight="400">
+    <text x="80" y="94" fill="#eef4fa" font-size="30" letter-spacing="1">humani.se</text>
+    <text x="80" y="218" fill="#b7d9f5" font-size="18" letter-spacing="4">VP OF ENGINEERING</text>
+    <text x="74" y="330" fill="#eef4fa" font-size="100" letter-spacing="-4">Hi. I’m Jeff<tspan fill="#a9d3f7">.</tspan></text>
+    <text x="80" y="405" fill="#d3e1ef" font-size="30">An engineering leader who still</text>
+    <text x="80" y="450" fill="#d3e1ef" font-size="30">loves building things.</text>
+    <text x="80" y="550" fill="#b7d9f5" font-size="20" letter-spacing="1">Jeff Miller · Carlsbad, California</text>
+  </g>
+</svg>

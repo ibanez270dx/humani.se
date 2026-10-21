@@ -1,9 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= content_for(:title) || "Jeff Miller · Engineering Leader | humani.se" %></title>
+    <% page_title = content_for(:title).presence || "Jeff Miller · Engineering Leader | humani.se" %>
+    <% page_description = "I’m Jeff Miller, a VP of Engineering in Carlsbad, California. I build teams, useful software, and thoughtful ways to put AI to work." %>
+    <title><%= page_title %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="I’m Jeff Miller, a VP of Engineering in Carlsbad, California. I build teams, useful software, and thoughtful ways to put AI to work.">
+    <meta name="description" content="<%= page_description %>">
+    <link rel="canonical" href="https://www.humani.se/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="humani.se">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:url" content="https://www.humani.se/">
+    <meta property="og:title" content="<%= page_title %>">
+    <meta property="og:description" content="<%= page_description %>">
+    <meta property="og:image" content="https://www.humani.se/social-preview.jpg">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Jeff Miller, VP of Engineering — an engineering leader who still loves building things.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= page_title %>">
+    <meta name="twitter:description" content="<%= page_description %>">
+    <meta name="twitter:image" content="https://www.humani.se/social-preview.jpg">
+    <meta name="twitter:image:alt" content="Jeff Miller, VP of Engineering — an engineering leader who still loves building things.">
     <meta name="theme-color" content="#071523">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
@@ -20,8 +39,8 @@
   </head>
   <body>
     <div class="night-sky" aria-hidden="true">
-      <%= image_tag "background/2560.jpg",
-        srcset: { "background/1440.jpg" => "1440w", "background/2560.jpg" => "2560w", "background/3200.jpg" => "3200w" },
+      <%= image_tag "background/1440.webp",
+        srcset: { "background/640.webp" => "640w", "background/960.webp" => "960w", "background/1440.webp" => "1440w", "background/2560.webp" => "2560w", "background/3200.webp" => "3200w" },
         sizes: "100vw", alt: "", fetchpriority: "high" %>
     </div>
     <%= link_to "Skip to content", "#main-content", class: "skip-link" %>

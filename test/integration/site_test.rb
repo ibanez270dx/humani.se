@@ -20,9 +20,22 @@ class SiteTest < ActionDispatch::IntegrationTest
       image = images.first
       assert_public_asset image["src"]
       variants = image["srcset"].split(",").map(&:split)
-      assert_equal %w[1440w 2560w 3200w], variants.map(&:last)
+      assert_equal %w[640w 960w 1440w 2560w 3200w], variants.map(&:last)
       variants.each{ |url, _width| assert_public_asset url }
     end
+  end
+
+  test "sharing metadata uses the canonical host rather than request input" do
+    get "/?utm_source=preview", headers: { "Host" => "preview.example.com" }
+
+    assert_response :success
+    assert_select "link[rel='canonical'][href='https://www.humani.se/']"
+    assert_select "meta[property='og:url'][content='https://www.humani.se/']"
+    assert_select "meta[property='og:title'][content=?]", "Jeff Miller · Engineering Leader | humani.se"
+    assert_select "meta[property='og:description'][content=?]", css_select("meta[name='description']").first["content"]
+    assert_select "meta[property='og:image'][content='https://www.humani.se/social-preview.jpg']"
+    assert_select "meta[name='twitter:card'][content='summary_large_image']"
+    assert_public_asset "/social-preview.jpg"
   end
 
   test "manifest icons and resume are available" do
