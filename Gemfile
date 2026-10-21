@@ -12,6 +12,7 @@ group :development, :test do
     platforms: %i[ mri windows ],
     require: "debug/prelude"
   gem "brakeman", require: false      # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
+  gem "bundler-audit", require: false # Check locked gems against Ruby security advisories
   gem "rubocop-rails-omakase",        # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
     require: false
 end
