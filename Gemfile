@@ -1,7 +1,7 @@
 source "https://rubygems.org"
-ruby "3.3.5"
+ruby "4.0.7"
 
-gem "rails", "~> 7.2.1"               # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
+gem "rails", "~> 8.1"               # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "sprockets-rails"                 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "dartsass-rails"                  # Integrate Dart Sass with the asset pipeline in Rails
 gem "sqlite3", ">= 1.4"               # Use sqlite3 as the database for Active Record
