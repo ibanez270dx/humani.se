@@ -1,56 +1,68 @@
+:root {
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #eef4fa;
+  background: #071523;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
 
 body {
-  font-feature-settings: "pnum", "kern" false;
-  font-family: $body-font;
-  color: $white;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased !important;
-  -moz-font-smoothing: antialiased !important;
-  text-rendering: optimizelegibility !important;
-  letter-spacing: .03em;
-}
-
-///////////////////////////////////////
-// Headers
-///////////////////////////////////////
-
-h1, h2, h3 {
-  margin: 0;
-  font-family: $header-font;
+  font-size: clamp(1.125rem, 1.43vw, 1.375rem);
   font-weight: 400;
-  color: $blue;
+  line-height: 1.55;
 }
-
-h1, h2 {
-  font-size: 32px;
-}
-
-h3 {
-  font-size: 24px;
-}
-
-///////////////////////////////////////
-// Links
-///////////////////////////////////////
 
 a {
-  color: $blue;
-  text-decoration: none;
-  &:hover {
-    text-decoration: none;
+  color: #b7d9f5;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
+
+  &:hover { color: #fff; }
+
+  &:focus-visible {
+    outline: 2px solid #b7d9f5;
+    outline-offset: 6px;
+    border-radius: 2px;
   }
 }
 
-///////////////////////////////////////
-// Typographic Containers
-///////////////////////////////////////
+h1, p { margin: 0; }
 
-p {
-  margin-top: 0;
+.eyebrow {
+  color: #b7d9f5;
+  font-size: clamp(0.6875rem, 1.05vw, 1rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
 }
 
-small {
-  display: block;
-  font-size: 9px;
-  text-align: center;
+h1 {
+  margin: 0.12em 0 0.14em;
+  font-size: clamp(4rem, 7.3vw, 7rem);
+  font-weight: 400;
+  letter-spacing: -0.045em;
+  line-height: 1.2;
+}
+
+.accent { color: #a9d3f7; }
+
+.introduction-lead {
+  margin-bottom: 1.05em;
+  font-size: clamp(1.375rem, 1.83vw, 1.75rem);
+  line-height: 1.5;
+  letter-spacing: -0.015em;
+}
+
+.introduction-body {
+  max-width: 42rem;
+  color: #d3e1ef;
+
+  p + p { margin-top: 1.2em; }
+}
+
+.site-footer {
+  color: #8296a8;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
 }

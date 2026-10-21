@@ -1,40 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title><%= content_for(:title) || "Humani.se" %></title>
+    <title><%= content_for(:title) || "Jeff Miller · Engineering Leader | humani.se" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="I’m Jeff Miller, a VP of Engineering in Carlsbad, California. I build teams, useful software, and thoughtful ways to put AI to work.">
+    <meta name="theme-color" content="#071523">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
     <%= yield :head %>
-
     <link rel="manifest" href="/manifest.json">
     <%= tag :link, rel: "icon", type: "image/png", href: "/favicon.png" %>
     <link rel="apple-touch-icon" href="/favicon.png">
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-
   <body>
-    <header>
-      <nav>
-        <%= link_to root_path do %>
-          <h1>humani.se</h1>
-          <%= image_tag('logo.png', class: 'nav-logo') %>
+    <div class="night-sky" aria-hidden="true">
+      <%= image_tag "background/2560.jpg",
+        srcset: { "background/1440.jpg" => "1440w", "background/2560.jpg" => "2560w", "background/3200.jpg" => "3200w" },
+        sizes: "100vw", alt: "", fetchpriority: "high" %>
+    </div>
+    <%= link_to "Skip to content", "#main-content", class: "skip-link" %>
+    <header class="site-header">
+      <%= link_to "humani.se", root_path, class: "wordmark", aria: { label: "humani.se — home" } %>
+      <nav class="header-links" aria-label="Main navigation">
+        <%= link_to "/jeff-miller-resume.pdf", target: "_blank", rel: "noopener" do %>
+          Resume <span aria-hidden="true">↗</span><span class="visually-hidden"> (PDF, opens in a new tab)</span>
         <% end %>
-        <%= link_to "jeff-miller-resume.pdf", target: :blank do %>
-          <span>Download My Resume</span>
-        <% end %>
-
-        <%= link_to "https://calendly.com/jeff-dev/meeting", target: :blank do %>
-          <span>Let's Chat!</span>
+        <%= link_to "https://calendly.com/jeff-dev/meeting", target: "_blank", rel: "noopener noreferrer" do %>
+          Let’s chat <span aria-hidden="true">↗</span><span class="visually-hidden"> (opens in a new tab)</span>
         <% end %>
       </nav>
     </header>
-
-    <main>
+    <main id="main-content" tabindex="-1">
       <%= yield %>
     </main>
+    <footer class="site-footer">© <%= Date.current.year %> Jeff Miller</footer>
   </body>
 </html>

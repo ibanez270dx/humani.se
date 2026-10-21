@@ -1,43 +1,27 @@
-
-<h1>
-  Hi. I'm an Engineering Leader.
-</h1>
-
-<article>
-  <p>
-    My name is Jeff Miller, and I’m a technology leader who has spent nearly two decades turning 
-    innovative ideas into real-world solutions that make a difference.
-    I believe in technology’s potential to create real, positive impact, and I’m driven 
-    by a simple goal: to humanize tech. Whether scaling startups, leading teams, or mentoring 
-    others, I focus on empowering people and delivering results that matter. My leadership style 
-    is rooted in empathy and purpose—I strive not just to deliver results, but to ensure those 
-    results have lasting, meaningful impact.
-  </p>
-  <p>
-    With experience spanning engineering, data science, and leadership, I’ve guided cross-functional 
-    teams through complex challenges, always striving to build tech that matters. From developing 
-    innovative solutions to creating cohesive, high-performing teams, my goal is always the same: to 
-    leave the world better than I found it through technology.
-  </p>
-  <p>
-    After nearly 15 years in the Bay Area, I currently live in Carlsbad, CA, with my wife and 
-    two young daughters. Balancing the demands of leadership with family life, I remain as 
-    committed as ever to building a future where technology is a force for good.
-  </p>
-</article>
-
-<footer>
-  <div id="social-links">
-    <%= link_to "https://www.linkedin.com/in/ibanez270dx", target: :blank, class: "hu-linkedin-cutout" do %>
-      <i class="hu-linkedin"></i>
-    <% end %>
-  
-    <%= link_to "jeff-miller-resume.pdf", target: :blank, class: "hu-resume-cutout" do %>
-      <i class="hu-resume"></i>
-    <% end %>
-  
-    <%= link_to "https://github.com/ibanez270dx", target: :blank, class: "hu-github-cutout" do %>
-      <i class="hu-github"></i>
-    <% end %>
+<section class="introduction" aria-labelledby="introduction-heading">
+  <p class="eyebrow">Jeff Miller <span aria-hidden="true">·</span> VP of Engineering</p>
+  <h1 id="introduction-heading">Hi. I’m Jeff<span class="accent">.</span></h1>
+  <p class="introduction-lead">I’m an engineering leader who still loves building things.</p>
+  <div class="introduction-body">
+    <p>
+      I build teams, help people do their best work, and turn complicated
+      problems into useful software. Lately, that includes helping teams
+      make AI part of how they work.
+    </p>
+    <p>
+      I live in Carlsbad, California, with my wife and three young children.
+      I believe technology should make life a little more human.
+    </p>
   </div>
-</footer>
+  <nav class="personal-links" aria-label="Find me online">
+    <%= link_to "https://www.linkedin.com/in/ibanez270dx", target: "_blank", rel: "noopener noreferrer" do %>
+      LinkedIn <span aria-hidden="true">↗</span><span class="visually-hidden"> (opens in a new tab)</span>
+    <% end %>
+    <%= link_to "https://github.com/ibanez270dx", target: "_blank", rel: "noopener noreferrer" do %>
+      GitHub <span aria-hidden="true">↗</span><span class="visually-hidden"> (opens in a new tab)</span>
+    <% end %>
+    <%= link_to "/jeff-miller-resume.pdf", target: "_blank", rel: "noopener" do %>
+      Resume <span aria-hidden="true">↗</span><span class="visually-hidden"> (PDF, opens in a new tab)</span>
+    <% end %>
+  </nav>
+</section>
