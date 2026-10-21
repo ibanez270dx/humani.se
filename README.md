@@ -25,27 +25,55 @@ bin/rails test
 bin/rails zeitwerk:check
 bin/rubocop
 bin/brakeman --no-pager
+bundle exec bundle-audit check --update
 RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile
 ```
 
-CI runs security scanning, lint, the production asset build, request tests,
-and eager-loading checks. Request tests cover the page, linked assets,
-manifest, health check, deployment status, and removed framework routes.
+CI runs source and dependency security scanning, lint, the production asset
+build, request tests, eager-loading checks, and production smoke tests.
+Request tests cover the page, linked assets, sharing metadata, manifest,
+health check, deployment status, and removed framework routes.
 
-## Production
-
-Precompile assets before starting Rails. Set a real `SECRET_KEY_BASE` at
-runtime, or provide `RAILS_MASTER_KEY` for encrypted credentials.
-`SECRET_KEY_BASE_DUMMY` is only for the asset build.
-Production forces HTTPS, so configure the hosting platform's TLS proxy.
+Run the production smoke checks after precompiling assets:
 
 ```sh
-docker build -t humani-se .
-docker run --rm -p 3000:3000 -e SECRET_KEY_BASE humani-se
+RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bin/rails runner test/production_smoke.rb
 ```
 
-The Docker command expects `SECRET_KEY_BASE` to be exported in the host shell
-and HTTPS to be handled by a reverse proxy.
+These check allowed and rejected hosts, HTTPS redirects, Heroku's forwarded
+HTTPS headers, CSP, public status, and every responsive image asset.
+
+## Production: Heroku
+
+Deploy using the existing Git remote:
+
+```sh
+git push heroku main
+```
+
+Heroku's Ruby buildpack installs gems and precompiles assets. The `Procfile`
+starts Puma on the port Heroku provides.
+
+The canonical URL is `https://www.humani.se/`, matching the existing live
+redirect from the bare domain. Production accepts `humani.se`,
+`www.humani.se`, and `humanise.herokuapp.com`. For other exact app or preview
+hostnames, set `RAILS_ALLOWED_HOSTS` to a comma-separated list. Wildcards are
+not needed. The Heroku CLI credentials were unavailable during the review,
+so the remote stack and domain list have not been independently verified.
+
+Keep Heroku's forwarded protocol headers intact. Rails forces HTTPS and
+recognizes requests already secured by Heroku's router. The production CSP
+permits same-origin images/styles/manifest and disables scripts, embedded
+objects, forms, and framing. Development retains its exception console.
+`/status` remains public by design; `started_at` records application boot
+configuration time and is shared by workers if the server preloads the app.
+
+The `.slugignore` file excludes design sources, documentation, tests, and
+authoring tooling from Heroku slugs. Compiled assets and public files remain.
+
+Set a real `SECRET_KEY_BASE` at runtime, or provide `RAILS_MASTER_KEY` for
+encrypted credentials.
+`SECRET_KEY_BASE_DUMMY` is only for the asset build.
 
 Routes: `/` (home), `/manifest.json` (web app metadata), `/up` (health),
 and `/status` (deployment metadata). Public files include favicons and
@@ -56,8 +84,24 @@ and `/status` (deployment metadata). Public files include favicons and
 The page lives in `app/views/application/index.html.erb`, with shared markup
 in `app/views/layouts/application.html.erb`. Sass starts at
 `app/assets/stylesheets/application.scss` and uses system fonts.
-Sprockets publishes the compiled CSS and three responsive background images.
+Sprockets publishes the compiled CSS and five responsive WebP backgrounds.
 
 Design references remain in `design-explorations/` and are excluded from
-Docker images. See [the repository review](docs/repository-review.md) for
+Heroku slugs. See [the repository review](docs/repository-review.md) for
 cleanup evidence and prioritized follow-up work.
+
+## Image sources and sharing preview
+
+The original photo and preview artwork live in `design-sources/`.
+`public/social-preview.jpg` is the 1200×630 social card. The layout includes
+Open Graph and Twitter metadata with absolute canonical URLs.
+
+To regenerate the images locally (optional authoring dependencies only):
+
+```sh
+npm install --prefix tmp/image-tools sharp --no-audit --no-fund
+NODE_PATH="$PWD/tmp/image-tools/node_modules" node script/build-images.cjs
+```
+
+Node and sharp are not required by Rails, CI, or Heroku. The checked-in WebP
+images preserve the original composition and use quality 85 encoding.

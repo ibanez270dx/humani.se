@@ -29,7 +29,7 @@ improving the content itself.
 | Rails frameworks | No concrete models, database queries, uploads, mailers, jobs, channels, or rich-text features exist. Load only controller/view/test railties, remove unused base classes and framework configuration, and remove SQLite and database setup steps. The Rails umbrella gem still installs its component gems; these frameworks are no longer initialized or mounted. |
 | Service worker | The file contained only commented examples and no registration exists. Removed its route and template. Retained the manifest and favicons because the layout actually links them. |
 | Test scaffolding | The original suite ran zero tests; its Selenium base referenced dependencies absent from the Gemfile. Removed empty channel/system scaffolding and added request coverage for current behavior. |
-| CI and packaging | Removed unused JavaScript auditing, browser installation, database preparation, and system-test artifact handling. Added production asset compilation and eager-loading checks. Aligned Docker's Ruby default with `.ruby-version` and removed unused image/database packages. Excluded design references and editor tooling from the Docker build context. |
+| CI and packaging | Removed unused JavaScript auditing, browser installation, database preparation, and system-test artifact handling. Added production asset compilation and eager-loading checks. Removed unused Docker packaging after confirming Heroku buildpacks are the intended deployment path. |
 | Documentation | Replaced the generated README with setup, checks, runtime requirements, and deployment guidance. |
 | Deployment status | Reduce the response to version, commit SHA, environment, deployment time, and application startup time. Use release metadata for deployment time and capture startup time during application configuration; remove subprocesses and the directory modification timestamp. |
 
@@ -38,73 +38,66 @@ working-tree source reduction, not a claim about visitor download savings
 or Git history size. Some unused assets were previously precompiled but
 never requested by the page. Design explorations remain in Git as references.
 
-## Recommended follow-up, in priority order
+## Follow-up disposition
 
-1. **Optimize the active background images.** The 1440 image is about 936 KiB,
-   the 2560 image about 2.5 MiB, and the 3200 image about 964 KiB. The larger
-   byte size at 2560 suggests inconsistent compression. Re-encode from a
-   suitable source, compare AVIF/WebP and JPEG visually, and add smaller
-   mobile candidates if they preserve the intended crop. Measure actual
-   transfer size and Largest Contentful Paint before and after. Avoid
-   preloading all variants: the browser should select one responsive source.
+The approved follow-up work is implemented locally:
 
-2. **Decide whether to restrict `/status`.** The simplified response still
-   exposes environment, release version, commit SHA, and deployment/startup
-   times. Keep `/up` for public health checks; decide whether operational
-   metadata needs authentication. Startup time is captured when the
-   application configuration is evaluated, so preloaded workers share that
-   timestamp. Release metadata depends on the hosting environment and may
-   be absent locally.
+| Item | Result |
+| --- | --- |
+| Optimize images | Replace the runtime JPEGs with five WebP widths (640, 960, 1440, 2560, 3200). Keep the original photo outside the asset pipeline, excluded from Heroku slugs. |
+| Public status | Keep `/status` public, as requested. The simplified metadata and separate deployment/startup timestamps remain. |
+| Rails defaults | Set `config.load_defaults 8.1`. Review the installed Rails 8.0/8.1 defaults: strict HTTP freshness, regexp timeout, environment-dependent YJIT, JSON escaping, relative redirect protection, and view template tracking. No application code depends on the old behavior; request and production smoke checks pass. Database-specific defaults do not apply because Active Record is disabled. |
+| Host restrictions and CSP | Allow the two public domain names and the known app hostname, plus explicit names from `RAILS_ALLOWED_HOSTS`. Enforce a production policy for this script-free page. Preserve HTTP-to-HTTPS redirects and test Heroku's forwarded protocol headers. |
+| Presentation checks | User reports the existing desktop/mobile presentation looks good. Preserve the layout and inspect the newly encoded image and social card locally. |
+| Sharing metadata | Add canonical, Open Graph, and Twitter tags and a matching 1200×630 JPEG preview. Use `https://www.humani.se/`, matching the live redirect from the bare domain. |
+| Maintenance checks | Add a locked-gem advisory scan and seven production smoke tests to CI. Add an explicit Heroku Puma Procfile and slug exclusions. A Docker build check is not part of the current buildpack deployment workflow. |
 
-3. **Finish the Rails defaults upgrade separately.** The installed Rails
-   version is 8.1.4, but `config.load_defaults` remains 7.2. Review the
-   installed framework's 8.0/8.1 defaults and adopt them deliberately with
-   request and production verification. Do not infer that updating the gem
-   also enables the newer framework defaults.
+### Image transfer sizes
 
-4. **Make production host and security policy explicit.** Production forces
-   HTTPS, but `config.hosts` is only a commented example and the CSP
-   initializer is entirely commented out. Confirm canonical and preview
-   hostnames and how the TLS proxy forwards requests; then configure host
-   authorization and a policy appropriate for this script-free page. Verify
-   `/up` with the actual load balancer before changing HTTPS exceptions.
-   Existing deployments may enforce some of this at the edge; that was not
-   checked here.
+| Width | Original JPEG bytes | WebP bytes | Reduction |
+| --- | ---: | ---: | ---: |
+| 640 | — | 18,748 | New smaller candidate |
+| 960 | — | 46,774 | New smaller candidate |
+| 1440 | 957,988 | 113,456 | 88.2% |
+| 2560 | 2,613,449 | 401,444 | 84.6% |
+| 3200 | 987,489 | 660,314 | 33.1% |
 
-5. **Add visual checks when changing presentation.** Request tests catch
-   broken routes, missing assets, and missing markup, but do not verify
-   mobile wrapping, text contrast against the image, or keyboard interaction.
-   Check representative narrow and wide viewports when changing the layout
-   or re-encoding/cropping the background. Add browser automation only when
-   it provides useful coverage; there is currently no browser test dependency.
-
-6. **Improve sharing metadata.** The page has a title and description, but
-   no canonical URL or Open Graph/social preview metadata. Add those with a
-   deliberate preview image once the canonical host is confirmed. Keep the
-   resume PDF and profile links current.
-
-7. **Broaden maintenance checks where useful.** CI now runs Brakeman, lint,
-   asset compilation, request tests, and eager loading. An advisory scan for
-   the complete locked Ruby dependency graph would complement source scanning.
-   A container build check would catch image-tag availability, Linux native
-   gem issues, and Dockerfile drift that a macOS Rails run cannot establish.
+The browser chooses one source based on viewport width and pixel density.
+These are encoded file-size reductions, not measured live load-time or
+Largest Contentful Paint improvements. The 57,285-byte sharing card is
+metadata for crawlers and is not downloaded by the page itself.
+Regeneration instructions and source files are included; authoring tools
+are not runtime dependencies.
 
 ## Validation
 
-- Four request tests, 39 assertions, passing.
-- Development and CI-style eager loading pass.
-- RuboCop passes; pre-existing production logger spacing offenses were fixed.
+- Five request tests, 55 assertions, passing.
+- Seven production smoke tests, 31 assertions, passing.
+- Production checks cover host rejection (including forwarded hosts), HTTPS
+  redirects, forwarded HTTPS without a redirect loop, CSP, public status,
+  stable startup timestamps, and successful retrieval of all referenced
+  compiled backgrounds, stylesheet, manifest, resume, and social card.
+- Eager loading, RuboCop, and production asset compilation pass.
 - Brakeman reports zero errors and zero security warnings.
-- Production asset precompilation passes.
-- Production-mode HTTPS Rack requests return 200 for home, health, status,
-  manifest, resume, SVG favicon, compiled stylesheet, and background image.
-- Compiled development CSS SHA-256 is identical before and after cleanup:
-  `e651afc07189c59f9651450bcebe948839d57137f84ebbd7e01c6ed868c7f62f`.
-- Route inspection shows only home, health, status, and manifest routes.
-- No dependency versions were upgraded; Bundler removed four unused direct
-  dependencies and their lockfile entries.
-- A Docker build could not be run: the Docker CLI is installed, but its
-  daemon socket is unavailable. Linux container execution remains unverified.
+- The locked-gem advisory scan reports no vulnerabilities against the updated
+  Ruby advisory database.
+- Route inspection still shows only home, health, status, and manifest.
+- The original cleanup left compiled CSS byte-for-byte unchanged; this
+  follow-up also leaves the Sass and layout styles unchanged.
+- Read-only live requests confirm a redirect from `https://humani.se/` to
+  `https://www.humani.se/`, whose response identifies the Heroku router.
 
-No live deployment or external link availability was tested. Browser visual
-checks were not run; the active CSS and background images were unchanged.
+## Deployment limits
+
+No changes have been deployed. The repository has a standard Heroku Git
+remote and no `heroku.yml` or other container-stack configuration. Remove
+the unused Dockerfile, `.dockerignore`, and `bin/docker-entrypoint`; deploy
+through Heroku buildpacks and the Puma Procfile.
+The authenticated Heroku stack/domain lookup could not run because the CLI
+credentials are expired. If the app has another generated or preview domain,
+add that exact hostname to `RAILS_ALLOWED_HOSTS` before using it.
+
+Live Largest Contentful Paint, social network cache refreshes, and production
+security headers should be checked after deployment. The user's visual
+approval covers the page layout; no new browser automation dependency was
+introduced. The new encoded image and preview were inspected as local images.
