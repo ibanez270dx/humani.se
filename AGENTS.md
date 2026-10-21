@@ -28,6 +28,10 @@ only when the requested behavior needs them.
   and content security configuration.
 - `test/integration/site_test.rb`: normal request tests.
 - `test/production_smoke.rb`: separate production-mode checks.
+- `public/404.html`, `406-unsupported-browser.html`, `422.html`, and
+  `500.html`: static error pages sharing `public/error.css` and
+  `public/error-background.webp`; keep them independent of Rails rendering
+  and fingerprinted assets.
 - `design-sources/` and `script/build-images.cjs`: image masters and optional
   image generation tooling. `design-explorations/` contains design references.
 
@@ -90,7 +94,8 @@ For documentation-only changes, check referenced paths and commands and run
 ## Assets and deployment
 
 Edit image sources in `design-sources/` and use the README's optional sharp
-workflow to regenerate the five WebP variants and `public/social-preview.jpg`.
+workflow to regenerate the five WebP variants, `public/error-background.webp`,
+and `public/social-preview.jpg`.
 Commit generated deliverable images with their source changes. Node/sharp
 are authoring tools, not Rails or Heroku dependencies. Sass output under
 `app/assets/builds/` and fingerprinted output under `public/assets/` are

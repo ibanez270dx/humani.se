@@ -15,6 +15,8 @@ async function build() {
     await sharp(source).resize({ width }).webp({ quality: 85, effort: 6 }).toFile(output);
     console.log(`${width}.webp: ${(await fs.stat(output)).size} bytes`);
   }
+  // Error pages need a stable public URL without the Rails asset pipeline.
+  await fs.copyFile(path.join(directory, '1440.webp'), path.join(root, 'public/error-background.webp'));
   await sharp(source)
     .resize(1200, 630, { fit: 'cover', position: 'centre' })
     .composite([{ input: path.join(root, 'design-sources/social-preview.svg') }])

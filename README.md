@@ -136,6 +136,11 @@ deployment time. Tests use placeholder release metadata.
 The resume is available at `/jeff-miller-resume.pdf`. Open Graph and Twitter
 metadata reference the 1200×630 image at `/social-preview.jpg`.
 
+The 404, unsupported-browser (406), 422, and 500 pages are static HTML in
+`public/`. They share `public/error.css` and `public/error-background.webp`
+so their appearance does not depend on Rails rendering or compiled assets.
+The unsupported-browser page offers a LinkedIn link as an alternative.
+
 ## Image authoring
 
 The photo master is `design-sources/night-sky.jpg`; the social-card overlay
@@ -147,10 +152,10 @@ npm install --prefix tmp/image-tools sharp --no-audit --no-fund
 NODE_PATH="$PWD/tmp/image-tools/node_modules" node script/build-images.cjs
 ```
 
-This writes the five WebP backgrounds at quality 85 and the JPEG social
-preview. Node and sharp are optional authoring dependencies; they are not
-required to run Rails, CI, or the Heroku build. Commit the generated images
-along with source changes.
+This writes the five WebP backgrounds at quality 85, the static error-page
+background, and the JPEG social preview. Node and sharp are optional authoring
+dependencies; they are not required to run Rails, CI, or the Heroku build.
+Commit the generated images along with source changes.
 
 See [AGENTS.md](AGENTS.md) for agent guidance and the
 [repository review](docs/repository-review.md) for cleanup evidence and

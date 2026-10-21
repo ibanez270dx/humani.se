@@ -1,66 +1,31 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>We're sorry, but something went wrong (500)</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-  .rails-default-error-page {
-    background-color: #EFEFEF;
-    color: #2E2F30;
-    text-align: center;
-    font-family: arial, sans-serif;
-    margin: 0;
-  }
-
-  .rails-default-error-page div.dialog {
-    width: 95%;
-    max-width: 33em;
-    margin: 4em auto 0;
-  }
-
-  .rails-default-error-page div.dialog > div {
-    border: 1px solid #CCC;
-    border-right-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #BBB;
-    border-top: #B00100 solid 4px;
-    border-top-left-radius: 9px;
-    border-top-right-radius: 9px;
-    background-color: white;
-    padding: 7px 12% 0;
-    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
-  }
-
-  .rails-default-error-page h1 {
-    font-size: 100%;
-    color: #730E15;
-    line-height: 1.5em;
-  }
-
-  .rails-default-error-page div.dialog > p {
-    margin: 0 0 1em;
-    padding: 1em;
-    background-color: #F7F7F7;
-    border: 1px solid #CCC;
-    border-right-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #999;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    border-top-color: #DADADA;
-    color: #666;
-    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
-  }
-  </style>
-</head>
-
-<body class="rails-default-error-page">
-  <!-- This file lives in public/500.html -->
-  <div class="dialog">
-    <div>
-      <h1>We're sorry, but something went wrong.</h1>
-    </div>
-    <p>If you are the application owner check the logs for more information.</p>
-  </div>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Something went wrong (500) · humani.se</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#071523">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/error.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header>
+      <a class="wordmark" href="/" aria-label="humani.se — home">humani.se</a>
+      <nav class="header-links" aria-label="Main navigation">
+        <a href="/jeff-miller-resume.pdf" target="_blank" rel="noopener">Resume <span aria-hidden="true">↗</span><span class="visually-hidden"> (PDF, opens in a new tab)</span></a>
+        <a href="https://calendly.com/jeff-dev/meeting" target="_blank" rel="noopener noreferrer">Let’s chat <span aria-hidden="true">↗</span><span class="visually-hidden"> (opens in a new tab)</span></a>
+      </nav>
+    </header>
+    <main id="main-content" tabindex="-1">
+      <section class="message" aria-labelledby="error-heading">
+        <p class="eyebrow">500 <span aria-hidden="true">·</span> Something went wrong</p>
+        <h1 id="error-heading">A brief interruption<span class="accent">.</span></h1>
+        <p class="description">Something went wrong while loading this page. Please try again in a moment.</p>
+        <a class="recovery" href="/">Back to home <span aria-hidden="true">→</span></a>
+      </section>
+    </main>
+    <footer>© 2026 Jeff Miller</footer>
+  </body>
 </html>

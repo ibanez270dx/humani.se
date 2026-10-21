@@ -39,6 +39,34 @@ class ProductionSmokeTest < Minitest::Test
     assert_equal payload.fetch("started_at"), @session.response.parsed_body.fetch("started_at")
   end
 
+  def test_error_responses_and_their_static_assets
+    @session.get "/a-page-that-does-not-exist", headers: { "Accept" => "text/html" }
+    assert_equal 404, @session.response.status
+    assert_includes @session.response.body, "A little off course"
+
+    old_browser = "Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko"
+    @session.get "/", headers: { "User-Agent" => old_browser }
+    assert_equal 406, @session.response.status
+    assert_includes @session.response.body, "Time for an update"
+    assert_includes @session.response.headers.fetch("Content-Security-Policy"), "style-src 'self'"
+
+    # These assets must remain available even to unsupported browsers.
+    %w[/error.css /error-background.webp].each do |url|
+      @session.get url, headers: { "User-Agent" => old_browser }
+      assert_equal 200, @session.response.status, url
+    end
+  end
+
+  def test_public_exception_handler_preserves_error_statuses
+    handler = ActionDispatch::PublicExceptions.new(Rails.public_path)
+    { 422 => "Let’s try that again", 500 => "A brief interruption" }.each do |status, heading|
+      env = Rack::MockRequest.env_for("/#{status}", "HTTP_ACCEPT" => "text/html")
+      response_status, _headers, body = handler.call(env)
+      assert_equal status, response_status
+      assert_includes body.join.force_encoding(Encoding::UTF_8), heading
+    end
+  end
+
   def test_allowed_hosts_and_health
     %w[humani.se www.humani.se humanise.herokuapp.com].each do |host|
       @session.host! host
