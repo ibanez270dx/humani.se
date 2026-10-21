@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+bin/brakeman --no-pager
+bundle exec bundle-audit check --update
+bin/rubocop
+bin/rails zeitwerk:check
+bin/rails dartsass:build
+bin/rails test
