@@ -44,8 +44,38 @@ body {
   .star-light { opacity: 0; }
 }
 
+.shooting-star {
+  --star-travel: clamp(10rem, 24vw, 24rem);
+  position: absolute;
+  top: 16%;
+  left: 82%;
+  width: clamp(3rem, 6vw, 6rem);
+  height: 2px;
+  display: none;
+  opacity: 0;
+  background: linear-gradient(90deg, #edf6ff, rgba(214, 234, 255, 0.55) 30%, transparent);
+  transform-origin: left center;
+
+  &::before {
+    position: absolute;
+    top: -0.5px;
+    left: 0;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #edf6ff;
+    content: "";
+  }
+}
+
 // Only animate when the visitor has not requested reduced motion.
 @media (prefers-reduced-motion: no-preference) {
+  .shooting-star {
+    display: block;
+    // A one-second streak, first appearing after 12 seconds, then every 56.
+    animation: shooting-star 56s linear 12s infinite;
+  }
+
   .night-sky-twinkles {
     display: block;
 
@@ -64,6 +94,19 @@ body {
 @keyframes star-twinkle {
   0%, 15%, 85%, 100% { opacity: 0; }
   50% { opacity: 1; }
+}
+
+@keyframes shooting-star {
+  0% {
+    opacity: 0;
+    transform: rotate(-35deg) translateX(0);
+  }
+  0.25% { opacity: 1; }
+  1.2% { opacity: 0.9; }
+  1.8%, 100% {
+    opacity: 0;
+    transform: rotate(-35deg) translateX(calc(-1 * var(--star-travel)));
+  }
 }
 
 .site-header {

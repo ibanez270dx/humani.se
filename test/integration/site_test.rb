@@ -14,6 +14,7 @@ class SiteTest < ActionDispatch::IntegrationTest
     assert_select "script", count: 0
     assert_select ".night-sky[aria-hidden='true']" do
       assert_select "svg.night-sky-twinkles[aria-hidden='true'][focusable='false'][preserveAspectRatio='xMidYMid slice']"
+      assert_select "span.shooting-star[aria-hidden='true']"
     end
 
     assert_select "link[rel='stylesheet']" do |links|
