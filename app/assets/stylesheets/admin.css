@@ -1,0 +1,16 @@
+/* Admin-only additions to locally vendored Pico CSS. */
+body { min-height: 100vh; background: #f7f9fc; }
+body > header { border-bottom: 1px solid #dce3ed; }
+main { padding-block: 2rem; }
+nav form, td form { margin: 0; }
+nav button, td button { margin: 0; white-space: nowrap; }
+.sign-in { max-width: 32rem; margin: 3rem auto; }
+caption { text-align: left; margin-bottom: 1rem; }
+th, td { vertical-align: middle; }
+.skip-link { position: absolute; left: -10000px; }
+.skip-link:focus { left: 1rem; top: 1rem; z-index: 2; background: white; padding: 1rem; }
+@media (max-width: 650px) {
+  nav { flex-direction: column; align-items: flex-start; }
+  nav ul { flex-wrap: wrap; }
+  .sign-in { margin-block: 1rem; }
+}

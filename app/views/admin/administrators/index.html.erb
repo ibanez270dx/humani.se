@@ -1,0 +1,37 @@
+<h1>Administrators</h1>
+<p>Approve Google accounts that can access this site. Only you, the owner, can manage access.</p>
+<article>
+  <h2>Invite an administrator</h2>
+  <% if @administrator.errors.any? %>
+    <div role="alert"><%= @administrator.errors.full_messages.to_sentence %></div>
+  <% end %>
+  <%= form_with model: @administrator, url: admin_administrators_path do |form| %>
+    <%= form.label :email, "Google account email" %>
+    <%= form.email_field :email, required: true, autocomplete: "email" %>
+    <small>No email is sent. Share https://admin.humani.se with the person you invite.</small>
+    <%= form.submit "Add administrator" %>
+  <% end %>
+</article>
+<div class="overflow-auto" role="region" aria-label="Administrator accounts" tabindex="0">
+  <table>
+    <caption>Accounts with current or previous access</caption>
+    <thead><tr><th scope="col">Account</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Last sign-in</th><th scope="col">Access</th></tr></thead>
+    <tbody>
+      <% @administrators.each do |administrator| %>
+        <tr>
+          <th scope="row"><%= administrator.email %><% if administrator.name.present? %><br><small><%= administrator.name %></small><% end %></th>
+          <td><%= administrator.role.capitalize %></td>
+          <td><%= administrator.access_status %></td>
+          <td><%= administrator.last_signed_in_at&.utc&.strftime("%b %-d, %Y %H:%M UTC") || "Never" %></td>
+          <td>
+            <% if administrator.owner? %>
+              Owner account
+            <% else %>
+              <%= button_to administrator.active? ? "Revoke access" : "Restore access", admin_administrator_path(administrator), method: :patch, params: { access: administrator.active? ? "revoke" : "restore" }, class: "secondary outline", aria: { label: "#{administrator.active? ? 'Revoke' : 'Restore'} access for #{administrator.email}" } %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

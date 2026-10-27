@@ -71,6 +71,6 @@ Rails.application.configure do
 
   # Heroku forwards the original protocol; force_ssl still redirects HTTP.
   # Add exact preview/default app domains with a comma-separated allowlist.
-  config.hosts = %w[humani.se www.humani.se humanise.herokuapp.com]
+  config.hosts = %w[humani.se www.humani.se admin.humani.se humanise.herokuapp.com]
   config.hosts.concat(ENV.fetch("RAILS_ALLOWED_HOSTS", "").split(",").map(&:strip).reject(&:empty?))
 end

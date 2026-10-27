@@ -20,3 +20,7 @@ end
 group :development do
   gem "web-console"                   # Use console on exceptions pages [https://github.com/rails/web-console]
 end
+
+gem "pg", "~> 1.7"
+gem "omniauth-google-oauth2", "~> 1.2"
+gem "omniauth-rails_csrf_protection", "~> 2.0"
