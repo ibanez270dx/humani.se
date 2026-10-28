@@ -2,7 +2,7 @@
 
 My personal site and a small Google-authenticated admin portal. The public
 page is server-rendered with responsive
-background imagery, a downloadable resume, and links to GitHub, LinkedIn,
+background imagery, a PDF resume, and links to GitHub, LinkedIn,
 and Calendly. The canonical URL is <https://www.humani.se/>.
 
 ## Development
@@ -21,7 +21,8 @@ at <http://localhost:3000> and watch the Dart Sass sources. It installs
 Foreman if missing.
 
 PostgreSQL is required. `bin/setup` prepares the development database and
-creates the initial owner (`jeff@humani.se`). Database connection settings
+creates the initial owner (`jeff@humani.se`) and imports the initial resume.
+Database connection settings
 are in `config/database.yml`; standard `PGHOST`, `PGUSER`, and `PGPASSWORD`
 variables can override local connection defaults. Production uses
 `DATABASE_URL`. No Redis, JavaScript toolchain, or background worker is
@@ -79,9 +80,9 @@ than invoking `bin/ci`.
 | `app/assets/config/manifest.js` | Sprockets publishing directives for images and compiled CSS |
 | `app/controllers/application_controller.rb` | Home and deployment-status actions |
 | `app/views/pwa/manifest.json.erb` | Web app metadata and icon references |
-| `public/` | Favicons, resume PDF, social preview, and static error pages |
-| `design-sources/` | Original photo and social-card artwork |
-| `design-explorations/` | Design references |
+| `public/` | Favicons, social preview, and static error pages |
+| `db/bootstrap/` | Initial resume PDF, imported only when no resume is published |
+| `docs/` | Implementation plans and historical repository reviews |
 
 The public page and admin portal use system fonts and no runtime JavaScript. Sprockets publishes
 compiled CSS and WebP backgrounds at widths 640, 960, 1440, 2560, and 3200.
@@ -97,7 +98,7 @@ git push heroku main
 ```
 
 The Ruby buildpack installs gems and precompiles assets. The root `Procfile`
-runs migrations and the idempotent owner bootstrap in its release process,
+runs migrations and the idempotent owner/resume bootstraps in its release process,
 then starts Puma using `config/puma.rb`; Puma reads Heroku's `PORT`. There is no
 Dockerfile or container deployment configuration.
 
@@ -131,6 +132,8 @@ and public files remain included.
 | `/manifest.json` | Web app metadata; no service worker is registered |
 | `/up` | Rails health check |
 | `/status` | Public deployment/startup metadata |
+| `/resume` | Latest published PDF, served inline on public hosts |
+| `/jeff-miller-resume.pdf` | Temporary redirect to `/resume` |
 
 The status response contains `version`, `sha`, `environment`, `deployed_at`,
 and `started_at`. Release version, commit SHA, and deployment time come from
@@ -140,7 +143,8 @@ provided. `started_at` is captured once when application configuration loads,
 so preloaded workers can share the timestamp. It is separate from release
 deployment time. Tests use placeholder release metadata.
 
-The resume is available at `/jeff-miller-resume.pdf`. Open Graph and Twitter
+The resume is available at `/resume`; the previous PDF URL redirects there.
+Open Graph and Twitter
 metadata reference the 1200×630 image at `/social-preview.jpg`.
 
 The 404, unsupported-browser (406), 422, and 500 pages are static HTML in
@@ -179,6 +183,38 @@ Production cookies are secure, HTTP-only, SameSite=Lax, host-only, and use
 `__Host-` names. Signing out removes the current session; revocation removes
 all sessions for the administrator and access is checked on every request.
 Admin HTML is marked `no-store` and `noindex, nofollow`.
+
+### Resume uploads
+
+The owner can open **Resume** in admin navigation to upload and immediately
+publish a replacement. Other admins cannot manage the resume. Uploads must
+be readable, unencrypted PDFs with at least one page and no larger than 5 MiB
+(5,242,880 bytes). Validation uses PDF contents rather than the supplied MIME
+type or filename. Invalid uploads leave the current resume unchanged.
+
+`Resume` stores one current PDF and its metadata in PostgreSQL, including the
+uploader, publication time, byte size, and SHA-256 digest. Replacement is atomic;
+concurrent uploads use the last successful write. Previous versions are not
+retained by the application. Include the resume in database backup/restore
+procedures. PDF parsing checks readability; it does not sanitize arbitrary
+embedded content or render previews on the server.
+
+`https://www.humani.se/resume` returns the PDF with `Content-Disposition: inline`
+and a stable suggested filename. Browser preferences can still force downloads.
+The strong ETag changes with the PDF; `Cache-Control: public, no-cache` requires
+revalidation before a cached copy is reused. Existing open tabs are not refreshed.
+On the admin host, `/resume` is the owner-only editor; its preview link points
+to the canonical public host. Public hosts do not accept resume uploads.
+
+`bin/setup` and Heroku releases run `resume:bootstrap` after migrations. It
+validates `db/bootstrap/jeff-miller-resume.pdf` and inserts it only if no resume
+exists, including during competing creation attempts. Subsequent releases
+never replace an uploaded resume. Run `bin/rails resume:bootstrap` for manual
+initialization after migration. A missing published record returns 404, without
+silently serving the initial PDF as a fallback.
+
+Production smoke tests remain database-independent; PDF delivery and cache
+revalidation are covered against the test database in integration tests.
 
 `Admin` stores each approved account and its Google identity, role, and access
 status. `AdminSession` belongs to an admin and stores a login token digest and
@@ -258,7 +294,7 @@ Before deploying this change:
    along with the existing runtime secret key base. Use separate production
    and development OAuth clients.
 6. Deploy through the existing Heroku Git workflow. The release process runs
-   `db:migrate admin:bootstrap`; it preserves an existing owner's Google
+   `db:migrate admin:bootstrap resume:bootstrap`; it preserves an existing owner's Google
    binding. For manual setup/recovery, the same idempotent command is
    `bin/rails admin:bootstrap` (or `heroku run rails admin:bootstrap`).
 7. Sign in as `jeff@humani.se`, add an admin, and verify their sign-in,
@@ -271,9 +307,18 @@ for current console requirements.
 
 ## Image authoring
 
-The photo master is `design-sources/night-sky.jpg`; the social-card overlay
-is `design-sources/social-preview.svg`. To regenerate the checked-in images
-from the repository root:
+Design explorations and original image sources have been removed from the
+current checkout. Generated runtime images remain checked in. The optional
+`script/build-images.cjs` tool requires the photo master at
+`design-sources/night-sky.jpg` and overlay at
+`design-sources/social-preview.svg`; restore those two inputs from Git history
+before regenerating images. The last version before their removal is:
+
+```sh
+git restore --source=8b806e0 -- design-sources/night-sky.jpg design-sources/social-preview.svg
+```
+
+With the inputs restored, run from the repository root:
 
 ```sh
 npm install --prefix tmp/image-tools sharp --no-audit --no-fund
@@ -289,3 +334,5 @@ See [AGENTS.md](AGENTS.md) for agent guidance and the
 [repository review](docs/repository-review.md) for cleanup evidence and
 follow-up decisions. The review records the work and checks performed at
 the time; current code, scripts, and workflow files define present behavior.
+The [resume management plan](docs/resume-management-plan.md) records the approved
+upload and public-delivery design and implementation acceptance checks.

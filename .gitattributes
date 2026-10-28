@@ -3,6 +3,9 @@
 # Mark the database schema as having been generated.
 db/schema.rb linguist-generated
 
+# Preserve PDF bytes, including fixed-width cross-reference records.
+*.pdf binary
+
 # Mark any vendored files as having been vendored.
 vendor/* linguist-vendored
 config/credentials/*.yml.enc diff=rails_credentials

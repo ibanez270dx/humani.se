@@ -9,8 +9,9 @@ resume/favicon/social-preview files. Ruby and Rails versions are defined in
 `.ruby-version`, `Gemfile`, and `Gemfile.lock`. Framework defaults are 8.1.
 
 The app loads Active Record, controller, view, and test railties. PostgreSQL
-stores administrators, sessions, and access audit events. It has no
-background jobs, mail delivery, uploads, WebSockets, or runtime JavaScript.
+stores admins, sessions, access audit events, and the current resume PDF.
+The owner can upload PDFs; there is no Active Storage, background job, mail
+delivery, WebSocket, or runtime JavaScript infrastructure.
 The Rails umbrella gem still installs framework components that are not
 loaded. Keep the implementation small; add infrastructure or dependencies
 only when the requested behavior needs them.
@@ -25,6 +26,9 @@ only when the requested behavior needs them.
 - `app/assets/config/manifest.js`: Sprockets asset publishing directives;
   unrelated to the web app manifest in `app/views/pwa/manifest.json.erb`.
 - `app/controllers/application_controller.rb`: home and status actions.
+- `app/models/resume.rb` and the public/admin resume controllers: bounded PDF
+  validation, singleton publication, inline delivery, and owner-only upload.
+- `db/bootstrap/jeff-miller-resume.pdf`: initial PDF, never a runtime fallback.
 - `config/initializers/humanise.rb`: Heroku release metadata lookup.
 - `config/environments/production.rb` and the CSP initializer: host, HTTPS,
   and content security configuration.
@@ -34,8 +38,9 @@ only when the requested behavior needs them.
   `500.html`: static error pages sharing `public/error.css` and
   `public/error-background.webp`; keep them independent of Rails rendering
   and fingerprinted assets.
-- `design-sources/` and `script/build-images.cjs`: image masters and optional
-  image generation tooling. `design-explorations/` contains design references.
+- `script/build-images.cjs`: optional image generation tooling. Its original
+  inputs and design explorations were removed; restore the inputs from Git
+  history as described in the README before regenerating images.
 
 ## Development and checks
 
@@ -110,10 +115,19 @@ For documentation-only changes, check referenced paths and commands and run
 - Keep admin styling in the separate admin layout; Pico is vendored locally.
 - The Heroku release process migrates the database and bootstraps the owner.
   Provisioning, OAuth credentials, DNS, and HTTPS still require live setup.
+- Only the owner can manage resumes at `/resume` on the admin host. The same
+  path serves the published PDF on public hosts. Keep the preview URL on
+  `https://www.humani.se/resume`, validate PDF contents up to 5 MiB, and retain
+  the current document on failed uploads. Keep bytes and metadata atomic,
+  upload contents out of logs, and public responses inline with revalidation.
+- Setup and releases run `resume:bootstrap` after migrations. Never overwrite
+  an existing resume with the bundled initial PDF. Keep production smoke
+  checks independent of a database; integration tests cover PDF delivery.
 
 ## Assets and deployment
 
-Edit image sources in `design-sources/` and use the README's optional sharp
+Image masters are no longer present in the checkout. Restore the two inputs
+from Git history before editing sources or using the README's optional sharp
 workflow to regenerate the five WebP variants, `public/error-background.webp`,
 and `public/social-preview.jpg`.
 Commit generated deliverable images with their source changes. Node/sharp

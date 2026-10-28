@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_28_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -45,10 +45,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_000000) do
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_admins_on_email", unique: true
     t.index ["google_uid"], name: "index_admins_on_google_uid", unique: true
-    t.check_constraint "role::text = ANY (ARRAY['owner'::character varying, 'admin'::character varying]::text[])", name: "admin_roles"
+    t.check_constraint "role::text = ANY (ARRAY['owner'::character varying::text, 'admin'::character varying::text])", name: "admin_roles"
+  end
+
+  create_table "resumes", force: :cascade do |t|
+    t.binary "pdf_data", null: false
+    t.integer "byte_size", null: false
+    t.string "sha256", null: false
+    t.string "original_filename", null: false
+    t.bigint "uploaded_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["uploaded_by_id"], name: "index_resumes_on_uploaded_by_id"
+    t.check_constraint "id = 1", name: "resume_singleton"
+    t.check_constraint "octet_length(pdf_data) >= 1 AND octet_length(pdf_data) <= 5242880 AND byte_size = octet_length(pdf_data)", name: "resume_size"
   end
 
   add_foreign_key "admin_access_events", "admins"
   add_foreign_key "admin_access_events", "admins", column: "actor_id"
   add_foreign_key "admin_sessions", "admins"
+  add_foreign_key "resumes", "admins", column: "uploaded_by_id"
 end
