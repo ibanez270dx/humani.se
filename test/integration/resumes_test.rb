@@ -85,7 +85,9 @@ class ResumesTest < ActionDispatch::IntegrationTest
     login(@owner)
     get "/resume"
     assert_response :success
-    assert_select "a[href='https://www.humani.se/resume'][target='_blank'][rel='noopener']"
+    assert_select "a[href='https://www.humani.se/resume'][target='_blank'][rel='noopener']" do |links|
+      assert_equal "#{links.first.text} (opens in a new tab)", links.first["aria-label"]
+    end
     assert_select "form[enctype='multipart/form-data'] input[type='file'][accept='application/pdf,.pdf']"
     assert_select "script", count: 0
     assert_equal "no-store", response.headers["Cache-Control"]

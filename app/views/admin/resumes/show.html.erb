@@ -1,5 +1,5 @@
 <h1>Resume</h1>
-<p>Manage the PDF visitors see at <%= link_to Resume::PUBLIC_URL, Resume::PUBLIC_URL, target: "_blank", rel: "noopener", aria: { label: "View the public resume PDF (opens in a new tab)" } %>.</p>
+<p>Manage the PDF visitors see at <%= link_to Resume::PUBLIC_URL, Resume::PUBLIC_URL, target: "_blank", rel: "noopener", aria: { label: "#{Resume::PUBLIC_URL} (opens in a new tab)" } %>.</p>
 <article>
   <h2>Current resume</h2>
   <% if @resume %>
