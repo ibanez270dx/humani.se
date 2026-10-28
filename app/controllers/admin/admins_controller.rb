@@ -23,9 +23,12 @@ class Admin::AdminsController < Admin::BaseController
   def update
     admin = Admin.find(params[:id])
     return head :forbidden if admin.owner?
+    return head :bad_request unless %w[revoke restore].include?(params[:access])
 
+    restoring = params[:access] == "restore"
     admin.with_lock do
-      restoring = params[:access] == "restore"
+      next if admin.active? == restoring
+
       admin.update!(revoked_at: restoring ? nil : Time.current)
       admin.admin_sessions.delete_all unless restoring
       AdminAccessEvent.create!(actor: current_admin, admin: admin, action: restoring ? "restored" : "revoked")

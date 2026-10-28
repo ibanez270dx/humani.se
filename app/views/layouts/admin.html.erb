@@ -24,7 +24,7 @@
       </nav>
     </header>
     <main id="main-content" class="container">
-      <% flash.each do |_type, message| %><p role="status"><%= message %></p><% end %>
+      <% flash.each do |type, message| %><p role="<%= type.to_s == 'alert' ? 'alert' : 'status' %>"><%= message %></p><% end %>
       <%= yield %>
     </main>
     <footer class="container"><small><% if current_admin %><%= current_admin.email %> · <% end %><%= link_to "Visit humani.se", "https://www.humani.se/" %></small></footer>

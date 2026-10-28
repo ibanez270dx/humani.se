@@ -71,6 +71,9 @@ class AdminTest < ActionDispatch::IntegrationTest
     sign_in("stranger@example.com")
     assert_redirected_to admin_sign_in_path
     assert_equal 0, AdminSession.count
+    follow_redirect!
+    assert_select "p[role='alert']", "This Google account does not have access. Contact the site owner."
+    assert_select "p[role='status']", count: 0
     sign_in(@owner.email, verified: false)
     assert_equal 0, AdminSession.count
     @owner.update!(google_uid: "original")
@@ -91,6 +94,17 @@ class AdminTest < ActionDispatch::IntegrationTest
     assert_equal 0, AdminSession.count
   end
 
+  test "denied identity invalidates the existing session credential" do
+    sign_in(@owner.email)
+    token = cookies[AdminSession::COOKIE_NAME]
+    sign_in(@owner.email, uid: "replacement")
+    assert_redirected_to admin_sign_in_path
+    assert_not AdminSession.exists?(token_digest: AdminSession.digest(token))
+    cookies[AdminSession::COOKIE_NAME] = token
+    get admin_root_path
+    assert_redirected_to admin_sign_in_path
+  end
+
   test "owner can invite revoke and restore with an audit trail" do
     sign_in(@owner.email)
     post admin_admins_path, params: { admin: { email: "  Friend@Example.com  ", role: "owner" } }
@@ -109,6 +123,57 @@ class AdminTest < ActionDispatch::IntegrationTest
     get admin_admins_path
     assert_response :success
     assert_select "th", "friend@example.com"
+    assert_select "p[role='status']", "Admin access updated."
+    assert_select "p[role='alert']", count: 0
+  end
+
+  test "invalid access actions do not change access sessions or audit history" do
+    friend = Admin.create!(email: "friend@example.com")
+    login = friend.admin_sessions.create!(token_digest: AdminSession.digest("friend-token"), expires_at: 1.day.from_now)
+    sign_in(@owner.email)
+
+    [nil, "", "resotre", ["restore"], { action: "restore" }].each do |access|
+      assert_no_changes ->{ friend.reload.attributes } do
+        assert_no_difference ["AdminSession.count", "AdminAccessEvent.count"] do
+          patch admin_admin_path(friend), params: { access: access }
+          assert_response :bad_request
+        end
+      end
+      assert AdminSession.exists?(login.id)
+    end
+  end
+
+  test "repeated access actions preserve sessions timestamps and audit history" do
+    friend = Admin.create!(email: "friend@example.com")
+    login = friend.admin_sessions.create!(token_digest: AdminSession.digest("friend-token"), expires_at: 1.day.from_now)
+    sign_in(@owner.email)
+    assert_no_changes ->{ friend.reload.attributes } do
+      assert_no_difference "AdminAccessEvent.count" do
+        patch admin_admin_path(friend), params: { access: "restore" }
+        assert_response :see_other
+      end
+    end
+    assert AdminSession.exists?(login.id)
+
+    patch admin_admin_path(friend), params: { access: "revoke" }
+    assert_not friend.reload.active?
+    assert_empty friend.admin_sessions
+    assert_no_changes ->{ friend.reload.attributes } do
+      assert_no_difference "AdminAccessEvent.count" do
+        patch admin_admin_path(friend), params: { access: "revoke" }
+        assert_response :see_other
+      end
+    end
+
+    patch admin_admin_path(friend), params: { access: "restore" }
+    assert friend.reload.active?
+    assert_no_changes ->{ friend.reload.attributes } do
+      assert_no_difference "AdminAccessEvent.count" do
+        patch admin_admin_path(friend), params: { access: "restore" }
+        assert_response :see_other
+      end
+    end
+    assert_equal %w[revoked restored], friend.admin_access_events.order(:id).pluck(:action)
   end
 
   test "invalid and duplicate invitations are rendered without granting access" do
@@ -152,6 +217,7 @@ class AdminTest < ActionDispatch::IntegrationTest
     assert_redirected_to admin_sign_in_path
     sign_in(friend.email)
     assert_redirected_to admin_sign_in_path
+    assert_empty friend.admin_sessions
   end
 
   test "expired sessions and signed out sessions cannot be reused" do
