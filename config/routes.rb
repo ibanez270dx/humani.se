@@ -5,7 +5,7 @@ Rails.application.routes.draw do
       get "sign-in", to: "sessions#new", as: :sign_in
       delete "sign-out", to: "sessions#destroy", as: :sign_out
       get "auth/google_oauth2/callback", to: "sessions#create"
-      resources :administrators, only: %i[index create update]
+      resources :admins, only: %i[index create update]
     end
   end
 

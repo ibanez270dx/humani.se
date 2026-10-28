@@ -180,6 +180,16 @@ Production cookies are secure, HTTP-only, SameSite=Lax, host-only, and use
 all sessions for the administrator and access is checked on every request.
 Admin HTML is marked `no-store` and `noindex, nofollow`.
 
+`Admin` stores each approved account and its Google identity, role, and access
+status. `AdminSession` belongs to an admin and stores a login token digest and
+expiry; sessions are removed on sign-out or revocation. `AdminAccessEvent`
+records an invitation, revocation, or restoration. Its `admin` is the affected
+account and its `actor` is the admin who performed the change. From an admin,
+`admin_access_events` returns changes to that account, while
+`performed_admin_access_events` returns changes they made. Audit events survive
+revocation, and their associations and database foreign keys prevent deleting
+referenced accounts.
+
 ### Local Google sign-in
 
 Run `bin/dev` once. The same Rails process serves both hosts on port 3000:

@@ -106,7 +106,7 @@ class ProductionSmokeTest < Minitest::Test
   end
 
   def test_admin_routes_are_absent_on_public_hosts
-    %w[/sign-in /administrators /auth/google_oauth2 /auth/google_oauth2/callback].each do |path|
+    %w[/sign-in /admins /auth/google_oauth2 /auth/google_oauth2/callback].each do |path|
       @session.get path
       assert_equal 404, @session.response.status, path
     end

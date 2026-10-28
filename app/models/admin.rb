@@ -1,7 +1,9 @@
-class Administrator < ApplicationRecord
+class Admin < ApplicationRecord
   OWNER_EMAIL = "jeff@humani.se".freeze
 
   has_many :admin_sessions, dependent: :delete_all
+  has_many :admin_access_events, dependent: :restrict_with_exception
+  has_many :performed_admin_access_events, class_name: "AdminAccessEvent", foreign_key: :actor_id, inverse_of: :actor, dependent: :restrict_with_exception
   normalizes :email, with: ->(email){ email.strip.downcase }
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :role, inclusion: { in: %w[owner admin] }

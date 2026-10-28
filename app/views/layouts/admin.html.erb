@@ -14,10 +14,10 @@
     <header class="container">
       <nav aria-label="Admin navigation">
         <ul><li><strong><%= link_to "humani.se / admin", admin_root_path %></strong></li></ul>
-        <% if current_administrator %>
+        <% if current_admin %>
           <ul>
             <li><%= link_to "Dashboard", admin_root_path %></li>
-            <% if current_administrator.owner? %><li><%= link_to "Administrators", admin_administrators_path %></li><% end %>
+            <% if current_admin.owner? %><li><%= link_to "Admins", admin_admins_path %></li><% end %>
             <li><%= button_to "Sign out", admin_sign_out_path, method: :delete, class: "secondary outline" %></li>
           </ul>
         <% end %>
@@ -27,6 +27,6 @@
       <% flash.each do |_type, message| %><p role="status"><%= message %></p><% end %>
       <%= yield %>
     </main>
-    <footer class="container"><small><% if current_administrator %><%= current_administrator.email %> · <% end %><%= link_to "Visit humani.se", "https://www.humani.se/" %></small></footer>
+    <footer class="container"><small><% if current_admin %><%= current_admin.email %> · <% end %><%= link_to "Visit humani.se", "https://www.humani.se/" %></small></footer>
   </body>
 </html>
