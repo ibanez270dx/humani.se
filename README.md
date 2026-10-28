@@ -80,8 +80,7 @@ than invoking `bin/ci`.
 | `app/controllers/application_controller.rb` | Home and deployment-status actions |
 | `app/views/pwa/manifest.json.erb` | Web app metadata and icon references |
 | `public/` | Favicons, resume PDF, social preview, and static error pages |
-| `design-sources/` | Original photo and social-card artwork |
-| `design-explorations/` | Design references |
+| `docs/` | Implementation plans and historical repository reviews |
 
 The public page and admin portal use system fonts and no runtime JavaScript. Sprockets publishes
 compiled CSS and WebP backgrounds at widths 640, 960, 1440, 2560, and 3200.
@@ -271,9 +270,18 @@ for current console requirements.
 
 ## Image authoring
 
-The photo master is `design-sources/night-sky.jpg`; the social-card overlay
-is `design-sources/social-preview.svg`. To regenerate the checked-in images
-from the repository root:
+Design explorations and original image sources have been removed from the
+current checkout. Generated runtime images remain checked in. The optional
+`script/build-images.cjs` tool requires the photo master at
+`design-sources/night-sky.jpg` and overlay at
+`design-sources/social-preview.svg`; restore those two inputs from Git history
+before regenerating images. The last version before their removal is:
+
+```sh
+git restore --source=8b806e0 -- design-sources/night-sky.jpg design-sources/social-preview.svg
+```
+
+With the inputs restored, run from the repository root:
 
 ```sh
 npm install --prefix tmp/image-tools sharp --no-audit --no-fund
@@ -289,3 +297,5 @@ See [AGENTS.md](AGENTS.md) for agent guidance and the
 [repository review](docs/repository-review.md) for cleanup evidence and
 follow-up decisions. The review records the work and checks performed at
 the time; current code, scripts, and workflow files define present behavior.
+The approved [resume management plan](docs/resume-management-plan.md) describes
+the next upload and public-delivery feature; it is not implemented yet.

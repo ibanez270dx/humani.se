@@ -34,8 +34,9 @@ only when the requested behavior needs them.
   `500.html`: static error pages sharing `public/error.css` and
   `public/error-background.webp`; keep them independent of Rails rendering
   and fingerprinted assets.
-- `design-sources/` and `script/build-images.cjs`: image masters and optional
-  image generation tooling. `design-explorations/` contains design references.
+- `script/build-images.cjs`: optional image generation tooling. Its original
+  inputs and design explorations were removed; restore the inputs from Git
+  history as described in the README before regenerating images.
 
 ## Development and checks
 
@@ -113,7 +114,8 @@ For documentation-only changes, check referenced paths and commands and run
 
 ## Assets and deployment
 
-Edit image sources in `design-sources/` and use the README's optional sharp
+Image masters are no longer present in the checkout. Restore the two inputs
+from Git history before editing sources or using the README's optional sharp
 workflow to regenerate the five WebP variants, `public/error-background.webp`,
 and `public/social-preview.jpg`.
 Commit generated deliverable images with their source changes. Node/sharp
