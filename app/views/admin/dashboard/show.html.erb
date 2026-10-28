@@ -1,0 +1,7 @@
+<h1>Dashboard</h1>
+<p>Welcome, <%= current_admin.name.presence || current_admin.email %>.</p>
+<article>
+  <h2>A little room to grow.</h2>
+  <p>This is the home for managing humani.se. Blog and resume tools will arrive here as they are added.</p>
+  <% if current_admin.owner? %><%= link_to "Manage admins →", admin_admins_path %><% end %>
+</article>

@@ -1,4 +1,14 @@
 Rails.application.routes.draw do
+  constraints AdminHost do
+    scope module: :admin, as: :admin do
+      root "dashboard#show"
+      get "sign-in", to: "sessions#new", as: :sign_in
+      delete "sign-out", to: "sessions#destroy", as: :sign_out
+      get "auth/google_oauth2/callback", to: "sessions#create"
+      resources :admins, only: %i[index create update]
+    end
+  end
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -12,5 +22,7 @@ Rails.application.routes.draw do
   get "/status", to: "application#status"
 
   # Defines the root path route ("/")
-  root "application#index"
+  constraints ->(request){ !AdminHost.matches?(request) } do
+    root "application#index"
+  end
 end

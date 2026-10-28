@@ -1,0 +1,7 @@
+<article class="sign-in">
+  <h1>Welcome back.</h1>
+  <p>Sign in with your approved Google account to manage humani.se.</p>
+  <% if params[:error].present? %><p role="alert">Google sign-in could not be completed. Please try again.</p><% end %>
+  <%= button_to "Sign in with Google", "/auth/google_oauth2", data: { turbo: false } %>
+  <small>Access is by invitation from the site owner.</small>
+</article>

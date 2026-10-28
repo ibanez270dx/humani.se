@@ -3,11 +3,13 @@
 ## Project scope
 
 humani.se is Jeff Miller's personal site: one server-rendered Rails page,
-a web app manifest, health and deployment-status endpoints, and public
+a Google-authenticated admin portal, a web app manifest, health and
+deployment-status endpoints, and public
 resume/favicon/social-preview files. Ruby and Rails versions are defined in
 `.ruby-version`, `Gemfile`, and `Gemfile.lock`. Framework defaults are 8.1.
 
-The app loads controller, view, and test railties. It has no database,
+The app loads Active Record, controller, view, and test railties. PostgreSQL
+stores administrators, sessions, and access audit events. It has no
 background jobs, mail delivery, uploads, WebSockets, or runtime JavaScript.
 The Rails umbrella gem still installs framework components that are not
 loaded. Keep the implementation small; add infrastructure or dependencies
@@ -39,7 +41,10 @@ only when the requested behavior needs them.
 
 Use `bin/setup` to install gems, clear logs/tempfiles, and request a server
 restart. `bin/dev` starts Rails on port 3000 and the Dart Sass watcher using
-Foreman, installing Foreman if missing. No database preparation is needed.
+Foreman, installing Foreman if missing. PostgreSQL must be running; `bin/setup`
+prepares the database and bootstraps the fixed owner. One `bin/dev` process serves
+`lvh.me:3000` and `admin.lvh.me:3000`. Real Google sign-in on lvh.me needs the
+optional local HTTPS mode described in the README.
 
 Run `bin/ci` for application changes. It stops at the first failure and runs:
 
@@ -82,14 +87,29 @@ For documentation-only changes, check referenced paths and commands and run
   or startup timestamp.
 - Keep canonical and sharing URLs on `https://www.humani.se/`, independent
   of request hosts or query parameters.
-- Production intentionally blocks scripts, forms, embedded objects, and
-  framing through CSP. If a requested feature needs a policy change, update
+- Production intentionally blocks scripts, embedded objects, and framing
+  through CSP. Public pages block forms; admin pages allow same-origin forms and Google sign-in redirects. If a requested feature needs a policy change, update
   the policy and corresponding production checks together.
 - Production hosts are explicitly allowed. Additional exact domains use
   comma-separated `RAILS_ALLOWED_HOSTS`; avoid broad wildcard allowances.
 - Add request coverage for behavior changes and production smoke coverage
   for host/HTTPS/CSP changes. Keep changes focused and preserve existing
   user edits in the working tree.
+
+## Admin conventions
+
+- Admin routes and OmniAuth middleware share `AdminHost`; production accepts
+  only `admin.humani.se`, while local admin uses `admin.lvh.me:3000`.
+- `jeff@humani.se` is the fixed owner. Only the owner manages administrators;
+  all invitations create admins, with no email delivery.
+- Never enable OmniAuth test mode outside tests. Keep Google scopes limited
+  to identity and do not persist Google access or refresh tokens.
+- Preserve stable Google identity binding, seven-day server-side sessions,
+  host-only secure cookies, access checks on every admin request, and atomic
+  audited revocation that deletes all target sessions.
+- Keep admin styling in the separate admin layout; Pico is vendored locally.
+- The Heroku release process migrates the database and bootstraps the owner.
+  Provisioning, OAuth credentials, DNS, and HTTPS still require live setup.
 
 ## Assets and deployment
 

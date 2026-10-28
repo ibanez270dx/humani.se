@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <title>Admin · humani.se</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "pico", "admin" %>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="container">
+      <nav aria-label="Admin navigation">
+        <ul><li><strong><%= link_to "humani.se / admin", admin_root_path %></strong></li></ul>
+        <% if current_admin %>
+          <ul>
+            <li><%= link_to "Dashboard", admin_root_path %></li>
+            <% if current_admin.owner? %><li><%= link_to "Admins", admin_admins_path %></li><% end %>
+            <li><%= button_to "Sign out", admin_sign_out_path, method: :delete, class: "secondary outline" %></li>
+          </ul>
+        <% end %>
+      </nav>
+    </header>
+    <main id="main-content" class="container">
+      <% flash.each do |type, message| %><p role="<%= type.to_s == 'alert' ? 'alert' : 'status' %>"><%= message %></p><% end %>
+      <%= yield %>
+    </main>
+    <footer class="container"><small><% if current_admin %><%= current_admin.email %> · <% end %><%= link_to "Visit humani.se", "https://www.humani.se/" %></small></footer>
+  </body>
+</html>

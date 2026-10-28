@@ -1,3 +1,6 @@
+ENV["GOOGLE_CLIENT_ID"] ||= "test-client-id"
+ENV["GOOGLE_CLIENT_SECRET"] ||= "test-client-secret"
+
 require "active_support/core_ext/integer/time"
 
 # The test environment is used exclusively to run your application's

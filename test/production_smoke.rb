@@ -68,17 +68,60 @@ class ProductionSmokeTest < Minitest::Test
   end
 
   def test_allowed_hosts_and_health
-    %w[humani.se www.humani.se humanise.herokuapp.com].each do |host|
+    %w[humani.se www.humani.se admin.humani.se humanise.herokuapp.com].each do |host|
       @session.host! host
       @session.get "/up"
       assert_equal 200, @session.response.status, host
     end
   end
 
-  def test_unknown_hosts_are_rejected
-    @session.host! "attacker.example"
+  def test_admin_routing_policy_and_local_assets
+    @session.host! "admin.humani.se"
     @session.get "/"
-    assert_equal 403, @session.response.status
+    assert_equal 302, @session.response.status
+    assert_equal "https://admin.humani.se/sign-in", @session.response.location
+    @session.get "/sign-in"
+    assert_equal 200, @session.response.status
+    policy = @session.response.headers.fetch("Content-Security-Policy")
+    ["form-action 'self' https://accounts.google.com", "script-src 'none'", "frame-ancestors 'none'"].each do |directive|
+      assert_includes policy, directive
+    end
+    assert_equal "no-store", @session.response.headers["Cache-Control"]
+    assert_equal "noindex, nofollow", @session.response.headers["X-Robots-Tag"]
+    cookie = @session.response.headers["set-cookie"].to_s
+    assert_includes cookie, "__Host-humanise_session="
+    assert_includes cookie, "secure"
+    assert_includes cookie, "httponly"
+    assert_includes cookie, "samesite=lax"
+    refute_match(/domain=/i, cookie)
+    page = Nokogiri::HTML(@session.response.body)
+    assert_equal 0, page.css("script").size
+    page.css("link[rel=stylesheet]").each do |node|
+      @session.get node["href"]
+      assert_equal 200, @session.response.status
+    end
+    @session.https! false
+    @session.get "/sign-in"
+    assert_equal "https://admin.humani.se/sign-in", @session.response.location
+  end
+
+  def test_admin_routes_are_absent_on_public_hosts
+    %w[/sign-in /admins /auth/google_oauth2 /auth/google_oauth2/callback].each do |path|
+      @session.get path
+      assert_equal 404, @session.response.status, path
+    end
+    @session.post "/auth/google_oauth2"
+    assert_equal 404, @session.response.status
+    @session.get "/"
+    assert_includes @session.response.headers.fetch("Content-Security-Policy"), "form-action 'none'"
+  end
+
+  def test_unknown_hosts_are_rejected
+    %w[attacker.example lvh.me admin.lvh.me].each do |host|
+      @session.host! host
+      @session.get "/"
+      assert_equal 403, @session.response.status
+    end
   end
 
   def test_untrusted_forwarded_host_is_rejected
