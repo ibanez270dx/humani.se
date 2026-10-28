@@ -1,7 +1,11 @@
 # Resume management plan
 
-Approved direction: October 28, 2026. This document plans implementation;
-this branch does not introduce uploads or change the public resume route.
+Approved direction: October 28, 2026. The implementation on this branch follows
+this plan; deployment and live verification remain separate steps.
+
+Implementation note: Rails normalizes the proposed redundant cache directives
+to `Cache-Control: public, no-cache`. This preserves required revalidation
+before every cached reuse; the implementation and tests use that form.
 
 ## Outcome and agreed scope
 
@@ -23,7 +27,7 @@ S3, Active Storage, background jobs, and runtime JavaScript are outside this
 first version. A visitor's browser preferences may override inline viewing;
 the server can request inline display but cannot force a PDF viewer.
 
-## Current application
+## Application at planning time
 
 The implementation starts from the merged admin portal on `main`:
 
@@ -223,14 +227,14 @@ inclusion, then deploy the implementation with its migration and release task.
 Verify public inline viewing, one owner replacement, old-link redirection, and
 persistence across a dyno restart. Deployment is a separate authorized step.
 
-## This planning branch
+## Completed planning commit
 
-Commit this plan and the approved removal of `design-explorations/` and
-`design-sources/`. Retain all generated background, social-preview, and static
-error assets. Keep the optional image build script, but document that its
-source inputs must be restored from Git history before it can run.
+The planning commit includes this plan and the approved removal of
+`design-explorations/` and `design-sources/`. It retains all generated background,
+social-preview, and static error assets. The optional image build script remains;
+its source inputs must be restored from Git history before it can run.
 Historical repository reviews remain dated records rather than current-state
-documentation. No resume implementation or deployment belongs in this commit.
+documentation. That planning commit contains no resume implementation or deployment.
 
 ## References
 

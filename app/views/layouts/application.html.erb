@@ -49,7 +49,7 @@
     <header class="site-header">
       <%= link_to "humani.se", root_path, class: "wordmark", aria: { label: "humani.se — home" } %>
       <nav class="header-links" aria-label="Main navigation">
-        <%= link_to "/jeff-miller-resume.pdf", target: "_blank", rel: "noopener" do %>
+        <%= link_to resume_path, target: "_blank", rel: "noopener" do %>
           Resume <span aria-hidden="true">↗</span><span class="visually-hidden"> (PDF, opens in a new tab)</span>
         <% end %>
         <%= link_to "https://calendly.com/jeff-dev/meeting", target: "_blank", rel: "noopener noreferrer" do %>

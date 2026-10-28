@@ -1,0 +1,25 @@
+<h1>Resume</h1>
+<p>Manage the PDF visitors see at <%= link_to Resume::PUBLIC_URL, Resume::PUBLIC_URL, target: "_blank", rel: "noopener", aria: { label: "View the public resume PDF (opens in a new tab)" } %>.</p>
+<article>
+  <h2>Current resume</h2>
+  <% if @resume %>
+    <dl>
+      <dt>File</dt><dd><%= @resume.original_filename %></dd>
+      <dt>Size</dt><dd><%= number_to_human_size(@resume.byte_size) %></dd>
+      <dt>Published</dt><dd><%= @resume.updated_at.utc.strftime("%b %-d, %Y %H:%M UTC") %></dd>
+      <dt>Uploaded by</dt><dd><%= @resume.uploaded_by&.email || "Initial import" %></dd>
+    </dl>
+  <% else %>
+    <p>No resume has been published yet.</p>
+  <% end %>
+</article>
+<article>
+  <h2>Publish a replacement</h2>
+  <% if @error %><p role="alert"><%= @error %></p><% end %>
+  <%= form_with scope: :resume, url: admin_resume_path, method: :patch, multipart: true do |form| %>
+    <%= form.label :pdf, "Resume PDF" %>
+    <%= form.file_field :pdf, accept: "application/pdf,.pdf", required: true, aria: { describedby: "resume-upload-help" } %>
+    <small id="resume-upload-help">Choose a PDF up to 5 MiB, without a password. A successful upload immediately replaces the public resume.</small>
+    <%= form.submit "Upload and publish resume" %>
+  <% end %>
+</article>

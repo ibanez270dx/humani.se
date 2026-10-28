@@ -23,11 +23,27 @@ class ProductionSmokeTest < Minitest::Test
     image = page.at_css(".night-sky img")
     urls << image["src"]
     urls.concat(image["srcset"].split(",").map{ |candidate| candidate.split.first })
-    urls.concat(%w[/social-preview.jpg /jeff-miller-resume.pdf /manifest.json])
+    urls.concat(%w[/social-preview.jpg /manifest.json])
     urls.uniq.each do |url|
       @session.get url
       assert_equal 200, @session.response.status, url
     end
+  end
+
+  def test_resume_links_legacy_redirect_and_public_upload_boundary
+    @session.get "/"
+    page = Nokogiri::HTML(@session.response.body)
+    assert_equal 2, page.css("a[href='/resume'][target='_blank'][rel='noopener']").size
+    @session.get "/jeff-miller-resume.pdf"
+    assert_equal 302, @session.response.status
+    assert_equal "https://www.humani.se/resume", @session.response.location
+    assert_includes @session.response.headers["Cache-Control"], "no-cache"
+    assert_includes @session.response.headers["Content-Security-Policy"], "object-src 'none'"
+    @session.patch "/resume"
+    assert_equal 404, @session.response.status
+    @session.host! "admin.humani.se"
+    @session.get "/resume"
+    assert_equal "https://admin.humani.se/sign-in", @session.response.location
   end
 
   def test_status_stays_public_and_startup_timestamp_is_stable

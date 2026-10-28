@@ -6,6 +6,7 @@ Rails.application.routes.draw do
       delete "sign-out", to: "sessions#destroy", as: :sign_out
       get "auth/google_oauth2/callback", to: "sessions#create"
       resources :admins, only: %i[index create update]
+      resource :resume, only: %i[show update]
     end
   end
 
@@ -23,6 +24,8 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   constraints ->(request){ !AdminHost.matches?(request) } do
+    get "/resume", to: "resumes#show", as: :resume
+    get "/jeff-miller-resume.pdf", to: "resumes#legacy"
     root "application#index"
   end
 end

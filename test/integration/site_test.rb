@@ -8,7 +8,8 @@ class SiteTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Hi. I’m Jeff."
     assert_select "main#main-content"
     assert_select "a.skip-link[href='#main-content']"
-    assert_select "a[href='/jeff-miller-resume.pdf']", count: 2
+    assert_select "a[href='/resume'][target='_blank'][rel='noopener']", count: 2
+    assert_select "a[download]", count: 0
     assert_select "a[href='https://calendly.com/jeff-dev/meeting']"
     assert_select "link[rel='manifest'][href='/manifest.json']"
     assert_select "script", count: 0
@@ -51,7 +52,8 @@ class SiteTest < ActionDispatch::IntegrationTest
     manifest.fetch("icons").each do |icon|
       assert_public_asset icon.fetch("src")
     end
-    assert_public_asset "/jeff-miller-resume.pdf"
+    get "/jeff-miller-resume.pdf"
+    assert_redirected_to "/resume"
   end
 
   test "health and deployment status remain available" do

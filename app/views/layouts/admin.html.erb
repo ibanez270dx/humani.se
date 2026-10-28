@@ -18,6 +18,7 @@
           <ul>
             <li><%= link_to "Dashboard", admin_root_path %></li>
             <% if current_admin.owner? %><li><%= link_to "Admins", admin_admins_path %></li><% end %>
+            <% if current_admin.owner? %><li><%= link_to "Resume", admin_resume_path %></li><% end %>
             <li><%= button_to "Sign out", admin_sign_out_path, method: :delete, class: "secondary outline" %></li>
           </ul>
         <% end %>
