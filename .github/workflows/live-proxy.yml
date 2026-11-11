@@ -1,0 +1,38 @@
+name: Live proxy verification
+
+on:
+  workflow_dispatch:
+    inputs:
+      origin:
+        description: Deployed origin to check (one read-only HTTPS request)
+        required: true
+        type: choice
+        options:
+          - https://www.humani.se
+          - https://humani.se
+          - https://admin.humani.se
+          - https://humanise.herokuapp.com
+      expected_sha:
+        description: Full 40-character commit SHA already deployed on this origin
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout verification script
+        uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+      - name: Verify headers received through the deployed proxy
+        env:
+          PROXY_ORIGIN: ${{ inputs.origin }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: ruby script/check-live-proxy.rb "$PROXY_ORIGIN" "$EXPECTED_SHA"

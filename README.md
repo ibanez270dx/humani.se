@@ -124,6 +124,53 @@ directory, tests, image-authoring scripts, and editor tooling from Heroku's
 deployed bundle. It does not remove those files from Git. Runtime assets
 and public files remain included.
 
+### Verify the live proxy after deployment
+
+The local production smoke test supplies synthetic forwarding headers. It does
+**not** verify what Heroku actually forwards. After separately deploying this
+change to an authorized production-mode app or review app, run from a checkout:
+
+```sh
+ruby script/check-live-proxy.rb https://www.humani.se FULL_DEPLOYED_COMMIT_SHA
+```
+
+Replace `FULL_DEPLOYED_COMMIT_SHA` with the full 40-character SHA of the deployed
+release (not an undeployed PR head). Heroku's runtime build metadata must expose
+that SHA in `/status`. Repeat for each origin serving the app, including
+`https://admin.humani.se`. For a review app, explicitly supply its HTTPS origin;
+its exact hostname must already be in `RAILS_ALLOWED_HOSTS`. This command does
+not configure hosts, deploy code, sign in, or change the database.
+
+The manually dispatched **Live proxy verification** GitHub Actions workflow
+runs the same command for one selected production origin and expected SHA. It
+becomes available from Actions once the workflow is on the default branch.
+Normal PR CI tests the checker locally and never probes production. A green
+PR check is not evidence of a live pass, and an old deployment or a missing
+probe endpoint fails rather than silently skipping this check.
+
+The command sends one ordinary HTTPS GET through the real proxy to
+`/status/proxy`, with a random nonce and no cookies, credentials, or injected
+forwarding headers. It requires a fresh, non-cacheable response from the exact
+deployed commit running Action Pack 8.1.4.1 in production mode. The application
+checks that Heroku's `X-Forwarded-For` contains valid IP literals, explicitly
+evaluates Rails' lazy `request.remote_ip` (including its cross-header conflict
+checks), verifies that the selected address belongs to that list, and verifies
+`X-Forwarded-Proto: https`, `X-Forwarded-Port: 443`, and Rails' HTTPS recognition.
+
+The public probe returns only boolean checks, `Forwarded` presence, the nonce,
+framework version and already-public deployment metadata. It never returns
+header values, IP addresses, cookies, or credentials, requires a bounded nonce,
+and uses `Cache-Control: no-store`. The existing `/status` schema is unchanged.
+The client verifies TLS, follows no redirects, retries no requests, limits the
+response size, and fails on missing metadata, failed checks, or network errors.
+
+This establishes compatibility for that normal request, origin, release and
+network path. It does not prove that the edge strips attacker-supplied headers,
+that all proxy hops are trusted correctly, or that every CDN/IPv4/IPv6 path is
+identical. Conflicting-header behavior is covered by local regression tests;
+active production spoofing tests are deliberately not part of this command.
+
+
 ## Routes and status
 
 | Route | Purpose |
