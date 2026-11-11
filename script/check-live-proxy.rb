@@ -11,7 +11,7 @@ class LiveProxyCheck
   CHECKS = %w[ip_spoofing_check_enabled x_forwarded_for_valid remote_ip_matches_forwarded_for
     x_forwarded_proto_https x_forwarded_port_https request_https].freeze
 
-  def initialize(origin:, expected_sha:)
+  def initialize(origin:, expected_sha:, http_factory: Net::HTTP.method(:new))
     @origin = URI.parse(origin)
     unless @origin.is_a?(URI::HTTPS) && @origin.host && @origin.port == 443 &&
         @origin.userinfo.nil? && ["", "/"].include?(@origin.path) && @origin.query.nil? && @origin.fragment.nil?
@@ -20,6 +20,7 @@ class LiveProxyCheck
     raise Failure, "Expected SHA must be the full 40-character deployed commit" unless /\A[0-9a-f]{40}\z/.match?(expected_sha)
 
     @expected_sha = expected_sha
+    @http_factory = http_factory
   rescue URI::InvalidURIError
     raise Failure, "Invalid HTTPS origin"
   end
@@ -63,7 +64,7 @@ class LiveProxyCheck
   def fetch(uri, nonce)
     # Do not send cookies, authorization, or synthetic forwarding headers. Do not
     # use an environment-configured HTTP proxy that could alter the observation.
-    http = Net::HTTP.new(uri.host, uri.port, nil)
+    http = @http_factory.call(uri.host, uri.port, nil)
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_PEER
     http.open_timeout = 5

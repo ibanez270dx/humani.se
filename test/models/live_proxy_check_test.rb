@@ -1,5 +1,4 @@
 require "test_helper"
-require "minitest/mock"
 require_relative "../../script/check-live-proxy"
 
 class LiveProxyCheckTest < ActiveSupport::TestCase
@@ -66,15 +65,14 @@ class LiveProxyCheckTest < ActiveSupport::TestCase
 
   test "transport sends only an ordinary bounded verified HTTPS request" do
     http = TransportDouble.new(["{}"])
-    Net::HTTP.stub(:new, ->(host, port, proxy){
+    factory = ->(host, port, proxy){
       assert_equal "www.humani.se", host
       assert_equal 443, port
       assert_nil proxy
       http
-    }) do
-      checker = LiveProxyCheck.new(origin: "https://www.humani.se", expected_sha: SHA)
-      checker.send(:fetch, URI("https://www.humani.se/status/proxy"), "a" * 32)
-    end
+    }
+    checker = LiveProxyCheck.new(origin: "https://www.humani.se", expected_sha: SHA, http_factory: factory)
+    checker.send(:fetch, URI("https://www.humani.se/status/proxy"), "a" * 32)
     assert_equal true, http.use_ssl
     assert_equal OpenSSL::SSL::VERIFY_PEER, http.verify_mode
     assert_equal [5, 10, 5, 0], [http.open_timeout, http.read_timeout, http.write_timeout, http.max_retries]
@@ -86,10 +84,9 @@ class LiveProxyCheckTest < ActiveSupport::TestCase
   end
 
   test "transport rejects an oversized response and reports timeouts without server details" do
-    checker = LiveProxyCheck.new(origin: "https://www.humani.se", expected_sha: SHA)
-    Net::HTTP.stub(:new, TransportDouble.new(["a" * 16_384, "b"])) do
-      assert_raises(LiveProxyCheck::Failure){ checker.run }
-    end
+    factory = ->(_host, _port, _proxy){ TransportDouble.new(["a" * 16_384, "b"]) }
+    checker = LiveProxyCheck.new(origin: "https://www.humani.se", expected_sha: SHA, http_factory: factory)
+    assert_raises(LiveProxyCheck::Failure){ checker.run }
     checker.define_singleton_method(:fetch){ |_uri, _nonce| raise Net::ReadTimeout, "private details" }
     error = assert_raises(LiveProxyCheck::Failure){ checker.run }
     refute_includes error.message, "private details"
