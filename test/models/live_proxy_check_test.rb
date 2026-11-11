@@ -23,11 +23,11 @@ class LiveProxyCheckTest < ActiveSupport::TestCase
     LiveProxyCheck::CHECKS.each do |key|
       [false, nil, "true"].each do |value|
         checks = LiveProxyCheck::CHECKS.to_h{ |name| [name, true] }.merge(key => value)
-        assert_raises(LiveProxyCheck::Failure){ probe("checks" => checks).run }
+        assert_raises(LiveProxyCheck::Failure){ probe({ "checks" => checks }).run }
       end
     end
     [nil, [], {}].each do |checks|
-      assert_raises(LiveProxyCheck::Failure){ probe("checks" => checks).run }
+      assert_raises(LiveProxyCheck::Failure){ probe({ "checks" => checks }).run }
     end
   end
 
