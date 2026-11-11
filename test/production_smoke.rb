@@ -157,4 +157,19 @@ class ProductionSmokeTest < Minitest::Test
     @session.get "/", headers: { "X-Forwarded-Proto" => "https", "X-Forwarded-Port" => "443" }
     assert_equal 200, @session.response.status
   end
+
+  def test_proxy_probe_through_production_middleware
+    @session.https! false
+    @session.get "/status/proxy", headers: {
+      "X-Humanise-Proxy-Nonce" => "a" * 32,
+      "X-Forwarded-For" => "203.0.113.9, 10.0.0.2",
+      "X-Forwarded-Proto" => "https",
+      "X-Forwarded-Port" => "443"
+    }
+    assert_equal 200, @session.response.status
+    assert_equal "production", @session.response.parsed_body.fetch("environment")
+    assert @session.response.parsed_body.fetch("checks").values.all?{ |value| value == true }
+    assert_equal "no-store", @session.response.headers["Cache-Control"]
+    refute_includes @session.response.body, "203.0.113.9"
+  end
 end

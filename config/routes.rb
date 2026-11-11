@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
   # Application Status
   get "/status", to: "application#status"
+  get "/status/proxy", to: "proxy_checks#show"
 
   # Defines the root path route ("/")
   constraints ->(request){ !AdminHost.matches?(request) } do
